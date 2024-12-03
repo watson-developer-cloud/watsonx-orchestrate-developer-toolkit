@@ -1,0 +1,209 @@
+openapi: 3.0.0
+info:
+  title: Agent Chat API
+  description: API for interacting with an agent-based chat system, allowing clients to send messages, receive responses, and manage chat sessions.
+  version: 1.0.0
+
+servers:
+  - url: https://api.agentchat.example.com/v1
+    description: The agent server endpoint
+
+paths:
+  /chat/completions:
+    post:
+      summary: Generate chat completions
+      description: Generate a response from the agent based on the user input, similar to the OpenAI chat completions endpoint.
+      parameters:
+        - name: X-IBM-THREAD-ID
+          in: header
+          required: false
+          schema:
+            type: string
+          description: Optional header to specify the thread ID
+      tags:
+        - Agent Chat
+      operationId: chat
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                model:
+                  type: string
+                  description: ID of the model to use
+                messages:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, assistant, system, tool]
+                        description: The role of the message sender
+                      content:
+                        type: string
+                        description: The content of the message
+                stream:
+                  type: boolean
+                  description: Whether to stream responses as server-sent events
+              required:
+                - model
+                - messages
+      security:
+      - HTTPBearer: []
+      - ApiKeyAuth: []
+      responses:
+        '200':
+          description: Chat completion response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: Unique identifier for the completion
+                  object:
+                    type: string
+                    description: The type of object returned, should be 'chat.completion'
+                  created:
+                    type: integer
+                    description: Timestamp of when the completion was created
+                  model:
+                    type: string
+                    description: The model used for generating the completion
+                  choices:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index:
+                          type: integer
+                          description: The index of the choice
+                        message:
+                          type: object
+                          properties:
+                            role:
+                              type: string
+                              enum: [user, assistant]
+                              description: The role of the message sender
+                            content:
+                              type: string
+                              description: The content of the message
+                        finish_reason:
+                          type: string
+                          description: The reason the message generation finished
+            text/event-stream:
+              schema:
+                type: string
+                example: |
+                  event: thread.message.delta
+                  data: {"id": "run-8c1182", "object": "thread.message.delta", "thread_id": "c91e2e38-7b42-43d7-b913-0273951350a9", "model": "agent-02", "created": 1728566547, "choices": [{"delta": {"role": "assistant", "content": "Here are the upcoming holidays in the US:\n\n- National Coming Out Day: October 11, 2024\n- Yom Kippur: October 12, 2024\n- Columbus Day: October 14, 2024\n- Sukkot: October 17, 2024\n- Sweetest Day: October 19, 2024\n- National Cat Day: October 29, 2024\n- Halloween: October 31, 2024\n- Diwali: November 01, 2024\n\nSource:\n- [Holidays Calendar](https://www.holidayscalendar.com/countries/united-states/)\n- [Time and Date](https://www.timeanddate.com/holidays/us/)\n- [Federal Holidays](https://www.federalholidays.net/usa/federal-holidays-2024.html)\n- [Dayspedia](https://dayspedia.com/us/calendar/holidays/)"}}]}
+                  
+                  event: thread.run.step.delta
+                  data: {"id": "step-d08460", "object": "thread.run.step.delta", "thread_id": "c91e2e38-7b42-43d7-b913-0273951350a9", "model": "agent-02/mistralai/mistral-large-latest", "created": 1728566531, "choices": [{"delta": {"role": "assistant", "step_details": {"type": "thinking", "content": "The agent's response is a generic greeting and does not address the user's specific question about upcoming holidays in the US. I should use the available tools to find the relevant information and provide a more specific and helpful response."}}]}
+                  
+                  event: thread.run.step.delta
+                  data: {"id": "step-a0844e", "object": "thread.run.step.delta", "thread_id": "c91e2e38-7b42-43d7-b913-0273951350a9", "model": "agent-02/mistralai/mistral-large-latest", "created": 1728566532, "choices": [{"delta": {"role": "assistant", "step_details": {"type": "tool_calls", "tool_calls": [{"name": "tavily_search_results_json", "args": {"query": "What are the upcoming holidays in the US?"}}]}}]}
+                  
+                  event: thread.run.step.delta
+                  data: {"id": "step-03050c", "object": "thread.run.step.delta", "thread_id": "ae1b353f-65b9-4668-b1e8-9298979c9697", "model": "agent-02", "created": 1729091694, "choices": [{"delta": {"role": "assistant", "step_details": {"type": "tool_response", "content": "[{'cellPhone': None, 'city': None, 'country': 'India', 'dateOfBirth': datetime.date(1998, 6, 30), 'defaultFullName': 'Vijaya Singh', 'department': 'HR Total Rewards (5000145)', 'email': 'kota.manaswini@partner.ibm.com', 'firstName': 'Vijaya', 'gender': ' ', 'hireDate': datetime.date(2023, 6, 30), 'lastName': 'Singh', 'salary': None, 'state': None, 'title': 'Digital Consultant', 'userId': '103451', 'businessPhone': None, 'location': 'Hyderabad (6200-0005)'}]", "name": "find_employee_by_name", "tool_call_id": "e32ff32a4"}}}]}
+
+components:
+  schemas:
+    ThreadMessageDelta:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event
+        object:
+          type: string
+          description: The type of object returned, should be 'thread.message.delta'
+        thread_id:
+          type: string
+          description: Unique identifier for the thread
+        model:
+          type: string
+          description: The model used for generating the delta message
+        created:
+          type: integer
+          description: Timestamp of when the delta message was created
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              delta:
+                type: object
+                properties:
+                  role:
+                    type: string
+                    enum: [user, assistant]
+                    description: The role of the message sender
+                  content:
+                    type: string
+                    description: The content of the delta message
+    ThreadRunStepDelta:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event
+        object:
+          type: string
+          enum:
+           - 'thread.run.step.delta'
+           - 'thread.run.step.created'
+           - 'thread.run.step.completed'
+        thread_id:
+          type: string
+          description: Unique identifier for the thread
+        model:
+          type: string
+          description: The model used for generating the step delta
+        created:
+          type: integer
+          description: Timestamp of when the step delta was created
+        choices:
+          type: array
+          items:
+            type: object
+            properties:
+              delta:
+                type: object
+                properties:
+                  role:
+                    type: string
+                    enum: [user, assistant]
+                    description: The role of the step action
+                  step_details:
+                    type: object
+                    properties:
+                      type:
+                        type: string
+                        enum: [thinking, tool_calls, tool_response]
+                        description: The type of step being performed
+                      content:
+                        type: string
+                        description: Additional context for the step
+                      tool_calls:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            name:
+                              type: string
+                              description: The name of the tool being called
+                            args:
+                              type: object
+                              description: Arguments provided to the tool
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    HTTPBearer:
+      type: http
+      scheme: bearer
