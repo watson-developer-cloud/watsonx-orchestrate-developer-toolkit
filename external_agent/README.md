@@ -5,7 +5,7 @@ For official feature documentation, refer to [link](https://developer.ibm.com/ap
 ## Starter Guide to Using the External Agent Feature
 
 ### Create the Agent
-Begin by creating an agent that exposes a chat streaming endpoint. Ensure the endpoint adheres to the specified standards and streams events correctly according to the [provided specifications](external_agent/spec.yaml).
+Begin by creating an agent that exposes a chat streaming endpoint. Ensure the endpoint adheres to the specified standards and streams events correctly according to the [provided specifications](spec.yaml).
 
 ### Implement Authentication
 The agent must support authentication through either of the following methods:
