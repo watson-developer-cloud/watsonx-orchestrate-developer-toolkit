@@ -1,10 +1,9 @@
 import os
-import asyncio
 from typing import List, Optional, Dict, Any
 from enum import Enum
-from fastapi import FastAPI, Header, Depends, HTTPException, Request
+from fastapi import FastAPI, Header, Depends
 from fastapi.security import APIKeyHeader, HTTPBearer, HTTPAuthorizationCredentials
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
@@ -490,7 +489,7 @@ async def chat_completions(
 
 
 @app.post("/chat/completions/stream")
-async def chat_completions(
+async def chat_completions_stream(
     request: ChatCompletionRequest,
     X_IBM_THREAD_ID: Optional[str] = Header(None, alias="X-IBM-THREAD-ID", description="Optional header to specify the thread ID"),
     current_user: Dict[str, Any] = Depends(get_current_user),
