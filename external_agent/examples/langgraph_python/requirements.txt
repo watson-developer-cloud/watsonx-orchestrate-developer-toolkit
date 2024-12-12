@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+python-dotenv
+langgraph
+langchain_anthropic
+tavily-python
+langchain-community
+langchain_openai
+langchain-ibm
+duckduckgo-search
+ibm-watsonx-ai
