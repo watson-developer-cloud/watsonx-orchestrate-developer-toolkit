@@ -4,10 +4,10 @@ import time
 from typing import Optional, Dict, Any
 from fastapi import FastAPI, Header, Depends
 from fastapi.responses import JSONResponse, StreamingResponse
-from .models import ChatCompletionRequest, ChatCompletionResponse, Choice, MessageResponse, DEFAULT_MODEL
-from .security import get_current_user
-from .tools import web_search_duckduckgo, news_search_duckduckgo
-from .llm_utils import get_llm_sync, get_llm_stream
+from models import ChatCompletionRequest, ChatCompletionResponse, Choice, MessageResponse, DEFAULT_MODEL
+from security import get_current_user
+from tools import web_search_duckduckgo, news_search_duckduckgo
+from llm_utils import get_llm_sync, get_llm_stream
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)

@@ -9,9 +9,9 @@ from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, System
 from langgraph.prebuilt import create_react_agent
 from ibm_watsonx_ai import APIClient, Credentials
 from langchain_ibm import ChatWatsonx
-from .models import Message, AIToolCall, Function, ChatCompletionResponse, Choice, MessageResponse
-from .config import OPENAI_API_KEY, WATSONX_SPACE_ID, WATSONX_API_KEY, WATSONX_URL
-from .token_utils import get_access_token
+from models import Message, AIToolCall, Function, ChatCompletionResponse, Choice, MessageResponse
+from config import OPENAI_API_KEY, WATSONX_SPACE_ID, WATSONX_API_KEY, WATSONX_URL
+from token_utils import get_access_token
 
 logger = logging.getLogger()
 
