@@ -4,9 +4,8 @@ import requests
 import json
 
 def get_access_token(WATSONX_API_KEY):
-    file_suffix = "ga"
     api_key = WATSONX_API_KEY  
-    file_path = './current_token' + file_suffix +'.txt'
+    file_path = './current_token.txt'
     url = "https://iam.cloud.ibm.com/identity/token"
     headers = {'content-type': 'application/x-www-form-urlencoded',
                'accept': 'application/json'}
@@ -16,7 +15,7 @@ def get_access_token(WATSONX_API_KEY):
     if os.path.isfile(file_path):
         file_time = os.path.getmtime(file_path)
         if time.time() - file_time < 3600:
-            print("Retrieved cached token for " + file_suffix)
+            print("Retrieved cached token ")
             with open(file_path, "r") as file:
                 return file.read()
 
@@ -28,7 +27,7 @@ def get_access_token(WATSONX_API_KEY):
 
         with open(file_path, "w") as file:
             file.write(token)
-        print("Retrieved new token for " + file_suffix)
+        print("Retrieved new token for ")
         return token
     else:
         raise Exception("Failed to get access token")
