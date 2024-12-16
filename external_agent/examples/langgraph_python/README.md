@@ -35,8 +35,8 @@ It is recommended to implement your own authentication security measures to ensu
    - From the left navigation menu, select **API keys**.
    - Click **Create** and copy the new API key for use in the registry secret.
 
-3. **Create the Agent:**
-   - Click the **Create** button to start creating an agent.
+3. **Create the Code Engine Application:**
+   - Click the **Create** button to start creating an application.
    - Under **Code**, select **Build container image from source code**.
    - In the **Code repo URL** field, enter `https://github.com/watsonx-orchestrate-developer-toolkit`.
    - Click **Specify build details**:
@@ -45,6 +45,8 @@ It is recommended to implement your own authentication security measures to ensu
      - **Context directory:** `external_agent/examples/langgraph_python`
      - Click **Next**
      - **Dockerfile:** Dockerfile (leave default)
+     - Click **Next**
+     - Under Registry secret, create a secret (if one doesn't exist) using the API Key created above
    - **Application name:** Any name, for instance `wxo-agent-test1-app1`
    - **Domain mappings:** Public
 
