@@ -15,7 +15,7 @@ FastAPI and [LangGraph](https://www.langchain.com/langgraph) to create a chat co
 - **Integration with AI Models**: It provides an example that supports multiple AI models, including IBM's watsonx and OpenAI's GPT, allowing for flexible AI-driven interactions.
 - **Tool Integration**: The application includes tools for web and news searches using DuckDuckGo, which can be invoked during chat interactions.
 - **Token Management**: Implements a caching mechanism for IBM Cloud IAM tokens to optimize authentication processes.
-- **Logging and Debugging**: Comprehensive logging is set up to facilitate debugging and monitoring of the application.
+- **Logging and Debugging**: Logging is set up to facilitate debugging and monitoring of the application.
 
 
 ## Deployment Instructions
