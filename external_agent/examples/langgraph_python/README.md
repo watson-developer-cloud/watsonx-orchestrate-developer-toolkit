@@ -17,6 +17,10 @@ FastAPI and [LangGraph](https://www.langchain.com/langgraph) to create a chat co
 - **Token Management**: Implements a caching mechanism for IBM Cloud IAM tokens to optimize authentication processes.
 - **Logging and Debugging**: Logging is set up to facilitate debugging and monitoring of the application.
 
+## Security Limitations
+
+Please be aware that this example accepts any API Key or Bearer token for authentication. 
+It is recommended to implement your own authentication security measures to ensure proper security.
 
 ## Deployment Instructions
 
