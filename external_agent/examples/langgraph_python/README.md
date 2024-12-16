@@ -46,7 +46,7 @@ It is recommended to implement your own authentication security measures to ensu
      - Click **Next**
      - **Dockerfile:** Dockerfile (leave default)
      - Click **Next**
-     - Under Registry secret, create a secret (if one doesn't exist) using the API Key created above
+     - Under **Registry secret**, create a secret (if one doesn't exist) using the **API Key** created above
    - **Application name:** Any name, for instance `wxo-agent-test1-app1`
    - **Domain mappings:** Public
 
