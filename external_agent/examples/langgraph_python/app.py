@@ -59,35 +59,6 @@ async def chat_completions(
         )
         return JSONResponse(content=response.dict())
 
-@app.post("/chat/completions/stream")
-async def chat_completions_stream(
-    request: ChatCompletionRequest,
-    X_IBM_THREAD_ID: Optional[str] = Header(None, alias="X-IBM-THREAD-ID", description="Optional header to specify the thread ID"),
-    current_user: Dict[str, Any] = Depends(get_current_user),
-):
-    logger.info(f"Received POST /chat/completions/stream ChatCompletionRequest: {request.json()}")
-    model = DEFAULT_MODEL
-    if request.model:
-        model = request.model
-    thread_id = ''
-    if  X_IBM_THREAD_ID:
-        thread_id =  X_IBM_THREAD_ID
-    if request.extra_body and request.extra_body.thread_id:
-        thread_id = request.extra_body.thread_id
-    logger.info("thread_id: " + thread_id)
-    logger.info(
-        f"/chat/completions/stream received with inputs:\n"
-        f"Model: {model}\n"
-        f"Context: {request.context}\n"
-        f"Messages: {request.messages}\n"
-        f"Stream: {request.stream}\n"
-        f"Extra Body: {request.extra_body}\n"
-        f"Thread ID: {thread_id}\n"
-        f"Current User: {current_user}"
-    )
-    selected_tools = [web_search_duckduckgo, news_search_duckduckgo]
-    return StreamingResponse(get_llm_stream(request.messages, model, thread_id, selected_tools), media_type="text/event-stream")
-
 if __name__ == '__main__':
     import uvicorn
     uvicorn.run(app, host='0.0.0.0', port=8080)
