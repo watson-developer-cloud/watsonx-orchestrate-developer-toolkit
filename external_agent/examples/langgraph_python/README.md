@@ -11,7 +11,7 @@ FastAPI and [LangGraph](https://www.langchain.com/langgraph) to create a chat co
 
 ## Features
 
-- **Chat Completion Service**: The application provides a RESTful API endpoint for chat completions, supporting both synchronous and streaming responses.
+- **Chat Completion Service**: The application provides a RESTful API endpoint for chat completions, supporting both synchronous and streaming responses following the specification of IBM Orchestrate external agents.
 - **Integration with AI Models**: It provides an example that supports multiple AI models, including IBM's watsonx and OpenAI's GPT, allowing for flexible AI-driven interactions.
 - **Tool Integration**: The application includes tools for web and news searches using DuckDuckGo, which can be invoked during chat interactions.
 - **Token Management**: Implements a caching mechanism for IBM Cloud IAM tokens to optimize authentication processes.
