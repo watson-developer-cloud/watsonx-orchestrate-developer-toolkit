@@ -54,6 +54,7 @@ It is recommended to implement your own authentication security measures to ensu
    - Add the following environment variables:
      - `WATSONX_SPACE_ID`
      - `WATSONX_API_KEY`
+     - `OPENAI_API_KEY` (only needed if you plan to use OpenAI models)
 
 5. **Test the Application:**
    - Choose **Test application** and click **Application URL**.
@@ -62,7 +63,7 @@ It is recommended to implement your own authentication security measures to ensu
 
 ### Step 2: Register the New Endpoint as an External Agent
 
-1. **In IBM Watsonx Orchestrate Web UI:**
+1. **In IBM watsonx orchestrate Web UI:**
    - From the top left hamburger menu, select **Agent Configuration**.
    - Select **Assistants** from the left-hand navigation.
    - Click the **Add assistant** button on the top right.
@@ -71,7 +72,19 @@ It is recommended to implement your own authentication security measures to ensu
 
 2. **Enter Details:**
    - **Display Name:** e.g., News Today
-   - **Description:** Enter a description of capabilities.
+   - **Description:** Enter a description of capabilities, for instance `Agent to retieve current news`
    - **API Key:** Enter your API key.
    - **Service Instance URL:** Use the Test URL with `/chat/completions` appended.
      - Example: `https://wxo-agent-test1-app1.1pj4w3r1pi47.us-south.codeengine.appdomain.cloud/chat/completions`
+
+![Alt text](./register_wxo_external_agent.png "Example of registering an external agent to IBM watsonx Orchestrate")
+
+### Step 3: Call the new External Agent from Orchestrate
+
+1. **In IBM watsonx orchestrate Web UI:**
+   - From the top left hamburger menu, select **Agent Configuration**.
+   - Select **Chat** from the left-hand navigation.
+   - Type a question that should route to the new agent, like `Can you tell me news about the Nasdaq today?`
+   - The results from the external agent should be streamed to the IBM watsonx Orchestrate chat window
+
+![Alt text](./chat_external_agent.png "Example of a chat to the external agent from IBM watsonx Orchestrate")
