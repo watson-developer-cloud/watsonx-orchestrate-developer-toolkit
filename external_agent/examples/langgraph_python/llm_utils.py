@@ -180,11 +180,11 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                 if content:
                     if isinstance(content, str):
                         print(content, end="|")
-                        current_timestamp = str(int(time.time()))
+                        current_timestamp = int(time.time())
                         struct = {
                             "id": str(uuid.uuid4()),
                             "object": "thread.message.delta",
-                            #"created": current_timestamp,
+                            "created": current_timestamp,
                             "thread_id": thread_id,
                             "model": model,
                             "choices": [
@@ -212,14 +212,13 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
             elif kind == "on_tool_start":
                 printmsg =  f"Starting tool: {event['name']} with inputs: {event['data'].get('input')} run_id: {event['run_id']}"
                 logger.debug(printmsg)
-                current_timestamp = str(int(time.time()))
+                current_timestamp = int(time.time())
                 step_details = {
                     "type": "tool_calls",
                     "tool_calls": [
                         {
                             "name": event['name'],
                             "args": event['data'].get('input')
-                            #"run_id": event['run_id']
                         }
                     ]
                 }
@@ -228,7 +227,7 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                             "object": "thread.run.step.delta",
                             "thread_id": thread_id,
                             "model": model,
-                            #"created": current_timestamp,
+                            "created": current_timestamp,
                             "choices": [
                                 {
                                     "delta": {
@@ -253,25 +252,19 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                 tool_call_id = ''
                 if output and output.tool_call_id:
                     tool_call_id = output.tool_call_id
-                current_timestamp = str(int(time.time()))
+                current_timestamp = int(time.time())
                 step_details = {
                     "type": "tool_response",
                     "name": event['name'],
                     "tool_call_id": tool_call_id,
-                    "content": [
-                        {
-                            "name": tool_name,
-                            "args": event['data'].get('input')
-                            #"run_id": event['run_id']
-                        }
-                    ]
+                    "content": content
                 }
                 struct = {
                             "id": str(uuid.uuid4()),
                             "object": "thread.run.step.delta",
                             "thread_id": thread_id,
                             "model": model,
-                            #"created": current_timestamp,
+                            "created": current_timestamp,
                             "choices": [
                                 {
                                     "delta": {
