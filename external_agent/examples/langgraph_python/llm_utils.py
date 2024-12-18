@@ -14,6 +14,7 @@ from config import OPENAI_API_KEY, WATSONX_SPACE_ID, WATSONX_API_KEY, WATSONX_UR
 from token_utils import get_access_token
 
 logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 def init_openai(model: str, parm_overrides: dict = {}):
     defaults = {
@@ -172,9 +173,6 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
     inputs = ""
     try:
         inputs = convert_messages_to_langgraph_format(messages)
-        show_stream_results_to_user = True
-        search_message_displayed = False
-        show_debug_messages = False
         async for event in graph.astream_events(inputs, version="v2"):
             kind = event["event"]
             if kind == "on_chat_model_stream":
@@ -182,25 +180,25 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                 if content:
                     if isinstance(content, str):
                         print(content, end="|")
-                        if show_stream_results_to_user or show_debug_messages:
-                            current_timestamp = str(int(time.time()))
-                            struct = {
-                                "id": str(uuid.uuid4()),
-                                "object": "thread.message.delta",
-                                "thread_id": thread_id,
-                                "model": model,
-                                "choices": [
-                                    {
-                                        "delta": {
-                                            "content": content,
-                                            "role": "assistant",
-                                        }
+                        current_timestamp = int(time.time())
+                        struct = {
+                            "id": str(uuid.uuid4()),
+                            "object": "thread.message.delta",
+                            "created": current_timestamp,
+                            "thread_id": thread_id,
+                            "model": model,
+                            "choices": [
+                                {
+                                    "delta": {
+                                        "content": content,
+                                        "role": "assistant",
                                     }
-                                ],
-                            }
-                            event_content = format_resp(struct)
-                            logger.info("Sending event content: " + event_content)
-                            yield event_content
+                                }
+                            ],
+                        }
+                        event_content = format_resp(struct)
+                        logger.info("Sending event content: " + event_content)
+                        yield event_content
                     if isinstance(content, list): 
                         for item in content:
                             if 'type' in item:
@@ -212,20 +210,73 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                                 else:
                                     print("Received item of type " + item['type'])
             elif kind == "on_tool_start":
-                logger.debug("--")
-                printmsg =  f"Starting tool: {event['name']} with inputs: {event['data'].get('input')}"
-                if not search_message_displayed:
-                    usermsg = "I am thinking for a second...\n"
-                logger.debug("Stopping streaming to user while tool runs")
-                show_stream_results_to_user = False
-                search_message_displayed = True
-                logger.info(printmsg)
+                printmsg =  f"Starting tool: {event['name']} with inputs: {event['data'].get('input')} run_id: {event['run_id']}"
+                logger.debug(printmsg)
+                current_timestamp = int(time.time())
+                step_details = {
+                    "type": "tool_calls",
+                    "tool_calls": [
+                        {
+                            "name": event['name'],
+                            "args": event['data'].get('input')
+                        }
+                    ]
+                }
+                struct = {
+                            "id": str(uuid.uuid4()),
+                            "object": "thread.run.step.delta",
+                            "thread_id": thread_id,
+                            "model": model,
+                            "created": current_timestamp,
+                            "choices": [
+                                {
+                                    "delta": {
+                                        "role": "assistant",
+                                        "step_details": step_details
+                                    }
+                                }
+                            ],
+                         }
+                event_content = format_resp(struct)
+                logger.info("Sending tool call event content: " + event_content)
+                yield event_content
             elif kind == "on_tool_end": 
-                logger.debug(f"Done tool: {event['name']}")
-                logger.debug(f"Tool output was: {event['data'].get('output')}")
-                logger.debug("--")
-                show_stream_results_to_user = True
-                yield "\n"
+                tool_name = event.get('name', '')
+                logger.debug(f"Done tool: {tool_name}")
+                output = event.get('data', {}).get('output', {})
+                content = ''
+                if output and output.content:
+                    content = output.content
+                run_id = event['run_id']      
+                logger.debug(f"Tool output for run {run_id} was: {content}")
+                tool_call_id = ''
+                if output and output.tool_call_id:
+                    tool_call_id = output.tool_call_id
+                current_timestamp = int(time.time())
+                step_details = {
+                    "type": "tool_response",
+                    "name": event['name'],
+                    "tool_call_id": tool_call_id,
+                    "content": content
+                }
+                struct = {
+                            "id": str(uuid.uuid4()),
+                            "object": "thread.run.step.delta",
+                            "thread_id": thread_id,
+                            "model": model,
+                            "created": current_timestamp,
+                            "choices": [
+                                {
+                                    "delta": {
+                                        "role": "assistant",
+                                        "step_details": step_details
+                                    }
+                                }
+                            ],
+                         }
+                event_content = format_resp(struct)
+                logger.info("Sending tool response event content: " + event_content)
+                yield event_content
             else:
                 print("Received new event type: " + kind)
         yield ""
