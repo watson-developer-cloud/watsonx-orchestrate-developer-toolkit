@@ -38,7 +38,7 @@ It is recommended to implement your own authentication security measures to ensu
 3. **Create the Code Engine Application:**
    - Click the **Create** button to start creating an application.
    - Under **Code**, select **Build container image from source code**.
-   - In the **Code repo URL** field, enter `https://github.com/watsonx-orchestrate-developer-toolkit`.
+   - In the **Code repo URL** field, enter `https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit`.
    - Click **Specify build details**:
      - **SSH secret:** None
      - **Branch name:** main
