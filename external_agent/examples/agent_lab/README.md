@@ -9,6 +9,10 @@ For official feature documentation, refer to the [IBM Developer API Catalog](htt
 This example demonstrates how to deploy an external agent as an AI service in IBM watsonx.ai. The application leverages 
 FastAPI and [IBM watsonx.ai Agent Lab](https://www.ibm.com/products/watsonx-ai/ai-agent-development) to create a chat completion service that integrates with IBM watsonx models. It also includes AI tools for Google search and Python interpreter.
 
+## Disclaimer
+
+IBM watsonx.ai AI services and Agent Builder are two upcoming features scheduled for release as of writing this. Please follow the official [homepage](https://www.ibm.com/products/watsonx-ai/ai-agent-development) for release announcement. This example is subject to changes.
+
 ## Features
 
 - **Chat Completion Service**: The application provides a RESTful API endpoint for chat completions, supporting both synchronous and streaming responses following the specification of IBM Orchestrate external agents.
@@ -31,7 +35,7 @@ It is recommended to implement your own authentication security measures to ensu
 ![Alt text](./assets/agent-lab.png "Example of Agent Lab template configuration")
 - Deploy as an AI service by clicking the "Deploy" icon in the top right corner
 - Make a note of the deployment id, space id and your IBM cloud api key
-
+- Alternatively, watsonx.ai also provides a way to define a "pro-code" agent for more customization, please refer to this [example](https://github.com/IBM/watson-machine-learning-samples/tree/master/cloud/ai-service-templates/langgraph-react-agent) as a reference.
 ### Step 1: Create a Code Engine Project
 
 1. **Using IBM Cloud Web UI:**
@@ -96,5 +100,5 @@ It is recommended to implement your own authentication security measures to ensu
    - Select **Chat** from the left-hand navigation.
    - Type a question that should route to the new agent, like `2024-2025 english soccer premier league table`
    - The results from the external agent should be streamed to the IBM watsonx Orchestrate chat window
-
+   - In the screenshot below, the two conversation turns use the defined tools Google search and Python interpreter, respectively. 
 ![Alt text](./assets/demo.png "Example of a chat to the external agent from IBM watsonx Orchestrate")
