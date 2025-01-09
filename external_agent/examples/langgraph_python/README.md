@@ -55,9 +55,11 @@ It is recommended to implement your own authentication security measures to ensu
      - `WATSONX_SPACE_ID`
      - `WATSONX_API_KEY`
      - `OPENAI_API_KEY` (only needed if you plan to use OpenAI models)
+   - Select the `Create` button
 
 5. **Test the Application:**
    - Choose **Test application** and click **Application URL**.
+     - It is expected this page will not be found, we need to slightly update the path
    - Append `/docs` to the end of the URL path to view a formatted API page.
      - Example: `https://wxo-agent-test1-app1.1pj4w3r1pi47.us-south.codeengine.appdomain.cloud/docs`
 
