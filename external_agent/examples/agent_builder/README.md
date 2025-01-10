@@ -35,8 +35,8 @@ It is recommended to implement your own authentication security measures to ensu
 ### Step 0: Create an AI deployment on IBM watsonx.ai
 
 - Login to watsonx.ai prompt lab
-- Configure an Agent Lab template
-![Alt text](./assets/agent-lab.png "Example of Agent Lab template configuration")
+- Configure an Agent Builder template
+![Alt text](./assets/agent-builder.png "Example of Agent Builder template configuration")
 - Deploy as an AI service by clicking the "Deploy" icon in the top right corner
 - Make a note of the space id, deployment id and your IBM cloud API key
   - The space id can be found in the "Manage" tab in your deployment space page (opened by clicking the name of your deployment space in the "Deployment spaces" section in watsonx home page)
@@ -63,7 +63,7 @@ It is recommended to implement your own authentication security measures to ensu
    - Click **Specify build details**:
      - **SSH secret:** None
      - **Branch name:** main
-     - **Context directory:** `external_agent/examples/agent_lab`
+     - **Context directory:** `external_agent/examples/agent_builder`
      - Click **Next**
      - **Dockerfile:** Dockerfile (leave default)
      - Click **Next**
