@@ -7,7 +7,11 @@ For official feature documentation, refer to the [IBM Developer API Catalog](htt
 ## Overview
 
 This example demonstrates how to deploy an external agent as an AI service in IBM watsonx.ai. The application leverages 
-FastAPI and [IBM watsonx.ai Agent Lab](https://www.ibm.com/products/watsonx-ai/ai-agent-development) to create a chat completion service that integrates with IBM watsonx models. It also includes AI tools for Google search and Python interpreter.
+FastAPI and [IBM watsonx.ai AI Service](https://www.ibm.com/products/watsonx-ai/ai-agent-development) to create a chat completion service that integrates with IBM watsonx models. It also includes AI tools for Google search and Python interpreter.
+
+To provide more background, IBM watsonx.ai AI Services is an upcoming feature for deploying custom agentic services and applications. Related to this, IBM watsonx.ai Agent Builder is another upcoming feature for building agents within a visual interface. This example guides you step by step to create an AI service using Agent builder, then deploy a Code Engine application that implements the watsonx Orchestrate external agent [`/chat/completions` endpoint](https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit/blob/main/external_agent/spec.yaml) using the `ai_service` and `ai_service_stream` endpoints exposed by your AI service, and finally register it as an external agent in watsonx Orchestrate.
+
+Alternative to Agent Builder, you can also build a more customized agentic AI service in a more programmatic manner by using the [IBM watsonx.ai SDK](https://ibm.github.io/watsonx-ai-python-sdk/core_api.html#client.Deployments.create). Please refer to - Alternatively, watsonx.ai also provides a way to define a "pro-code" agent for more customization, please refer to this [application template](https://github.com/IBM/watson-machine-learning-samples/tree/master/cloud/ai-service-templates/langgraph-react-agent) for more detail.
 
 ## Disclaimer
 
@@ -34,8 +38,13 @@ It is recommended to implement your own authentication security measures to ensu
 - Configure an Agent Lab template
 ![Alt text](./assets/agent-lab.png "Example of Agent Lab template configuration")
 - Deploy as an AI service by clicking the "Deploy" icon in the top right corner
-- Make a note of the deployment id, space id and your IBM cloud api key
-- Alternatively, watsonx.ai also provides a way to define a "pro-code" agent for more customization, please refer to this [example](https://github.com/IBM/watson-machine-learning-samples/tree/master/cloud/ai-service-templates/langgraph-react-agent) as a reference.
+- Make a note of the space id, deployment id and your IBM cloud API key
+  - The space id can be found in the "Manage" tab in your deployment space page (opened by clicking the name of your deployment space in the "Deployment spaces" section in watsonx home page)
+![Alt text](./assets/space_id.png "Example of space id")
+  - The deployment id can be found as part of the API endpoints generated in the "API reference" tab in your deployment page (opened by clicking the name of your deployment in the "Deployments" tab in your deployment space page)
+![Alt text](./assets/deployment_id.png "Example of deployment id")
+  - Your IBM cloud API key can be obtained following [documentation](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui)
+
 ### Step 1: Create a Code Engine Project
 
 1. **Using IBM Cloud Web UI:**
@@ -65,10 +74,10 @@ It is recommended to implement your own authentication security measures to ensu
 
 4. **Set Environment Variables:**
    - Add the following environment variables:
-     - `WATSONX_AI_SERVICE_DEPLOYMENT_ID`
-     - `WATSONX_AI_SERVICE_API_KEY`
-     - `WATSONX_AI_SERVICE_SPACE_KEY`
-     - `WATSONX_AI_SERVICE_URL` (optional)
+     - `WATSONX_DEPLOYMENT_ID`
+     - `WATSONX_API_KEY`
+     - `WATSONX_SPACE_ID`
+     - `WATSONX_URL` (optional)
 
 5. **Test the Application:**
    - Choose **Test application** and click **Application URL**.

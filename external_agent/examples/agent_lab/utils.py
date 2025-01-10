@@ -15,10 +15,10 @@ logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
 
-WATSONX_DEPLOYMENT_ID = os.getenv("WATSONX_AI_SERVICE_DEPLOYMENT_ID")
-WATSONX_API_KEY = os.getenv("WATSONX_AI_SERVICE_API_KEY")
-WATSONX_SPACE_ID = os.getenv("WATSONX_AI_SERVICE_SPACE_KEY")
-WATSONX_URL = os.getenv("WATSONX_AI_SERVICE_URL", "https://us-south.ml.cloud.ibm.com")
+WATSONX_DEPLOYMENT_ID = os.getenv("WATSONX_DEPLOYMENT_ID")
+WATSONX_API_KEY = os.getenv("WATSONX_API_KEY")
+WATSONX_SPACE_ID = os.getenv("WATSONX_SPACE_ID")
+WATSONX_URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
 
 
 def _get_access_token():
