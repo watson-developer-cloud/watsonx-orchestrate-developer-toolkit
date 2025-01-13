@@ -9,6 +9,9 @@ For official feature documentation, refer to the [IBM Developer API Catalog](htt
 This example demonstrates how to deploy an external agent as a serverless application in IBM Cloud. The application leverages 
 FastAPI and [LangGraph](https://www.langchain.com/langgraph) to create a chat completion service that integrates with IBM watsonx and OpenAI models. It also includes AI tools for web and news searches using DuckDuckGo.
 
+## Video
+[Video walking through this example](./wxo_external_langgraph_agent_demo.mp4)
+
 ## Features
 
 - **Chat Completion Service**: The application provides a RESTful API endpoint for chat completions, supporting both synchronous and streaming responses following the specification of IBM Orchestrate external agents.
