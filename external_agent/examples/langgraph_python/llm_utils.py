@@ -5,7 +5,7 @@ import traceback
 import logging
 from typing import List, Dict, Any, Optional
 from langchain_openai import ChatOpenAI
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage, BaseMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage, BaseMessage, ToolCall
 from langgraph.prebuilt import create_react_agent
 from ibm_watsonx_ai import APIClient, Credentials
 from langchain_ibm import ChatWatsonx
@@ -41,10 +41,22 @@ def convert_messages_to_langgraph_format(messages: List[Message]) -> Dict[str, A
             additional_kwargs = {}
             if msg.content:
                 content = msg.content
-            new_message=AIMessage(content=content, additional_kwargs=additional_kwargs)
+            if msg.tool_calls:
+                # Convert list of AIToolCall messages to langchain ToolCall message
+                langchain_tool_calls = []
+                for index, tool_call in enumerate(msg.tool_calls):
+                    name = tool_call.function.name
+                    args = tool_call.function.arguments
+                    id = tool_call.id
+                    langchain_tool_calls.append(ToolCall(name=name, args=args, id=id, type='tool'))
+
+                new_message=AIMessage(content=content, tool_calls=langchain_tool_calls, additional_kwargs=additional_kwargs)
+
+            else:
+                new_message=AIMessage(content=content, additional_kwargs=additional_kwargs)
         if role.lower() == 'tool':
-            tool_call_id = None
-            content = None
+            tool_call_id = msg.tool_call_id
+            content = msg.content
             name = None
             new_message = ToolMessage(content=content, name=name, tool_call_id=tool_call_id)
         conv_messages.append(new_message)
@@ -153,7 +165,7 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
         use_tools = True
     else:
         use_tools = False
-    send_tool_events = False
+    send_tool_events = True
     logger.info(f"LLM Stream with tools {tools}")
     model_init_overrides = {'temperature': 0, 'streaming': True}
     if not thread_id:
@@ -217,6 +229,7 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                     "type": "tool_calls",
                     "tool_calls": [
                         {
+                            "id": event['run_id'],
                             "name": event['name'],
                             "args": event['data'].get('input')
                         }
@@ -253,6 +266,7 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                 tool_call_id = ''
                 if output and output.tool_call_id:
                     tool_call_id = output.tool_call_id
+                tool_call_id = run_id #Better matches tool response with tool request
                 current_timestamp = int(time.time())
                 step_details = {
                     "type": "tool_response",
