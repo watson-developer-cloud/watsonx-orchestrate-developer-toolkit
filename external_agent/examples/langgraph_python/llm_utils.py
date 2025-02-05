@@ -189,7 +189,7 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
         use_tools = True
     else:
         use_tools = False
-    send_tool_events = False
+    send_tool_events = True
     logger.info(f"LLM Stream with tools {tools}")
     model_init_overrides = {'temperature': 0, 'streaming': True}
     if not thread_id:
