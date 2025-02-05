@@ -14,7 +14,7 @@ from config import OPENAI_API_KEY, WATSONX_SPACE_ID, WATSONX_API_KEY, WATSONX_UR
 from token_utils import get_access_token
 
 logger = logging.getLogger()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 def init_openai(model: str, parm_overrides: dict = {}):
     defaults = {
@@ -31,7 +31,7 @@ def convert_messages_to_langgraph_format(messages: List[Message]) -> Dict[str, A
         if msg.content and len(msg.content) > max_message_length:
             msg.content = msg.content[:max_message_length]
         role = msg.role
-        logger.info(f"Converting input message of type {role}")
+        logger.debug(f"Converting input message of type {role}")
         if role.lower() == 'user' or role.lower() == 'human':
             new_message = HumanMessage(content=msg.content)
         if role.lower() == 'system':
@@ -50,10 +50,9 @@ def convert_messages_to_langgraph_format(messages: List[Message]) -> Dict[str, A
                     id = tool_call.id
                     langchain_tool_calls.append(ToolCall(name=name, args=args, id=id, type='tool'))
 
-                new_message=AIMessage(content=content, tool_calls=langchain_tool_calls, additional_kwargs=additional_kwargs)
-
+                new_message = AIMessage(content=content, tool_calls=langchain_tool_calls, additional_kwargs=additional_kwargs)
             else:
-                new_message=AIMessage(content=content, additional_kwargs=additional_kwargs)
+                new_message = AIMessage(content=content, additional_kwargs=additional_kwargs)
         if role.lower() == 'tool':
             tool_call_id = msg.tool_call_id
             content = msg.content
@@ -62,7 +61,7 @@ def convert_messages_to_langgraph_format(messages: List[Message]) -> Dict[str, A
         conv_messages.append(new_message)
     return {
         "messages": conv_messages
-    }   
+    }
 
 def convert_response_to_messages(response: dict) -> List[Message]:
     messages = []
@@ -138,6 +137,7 @@ def get_llm_sync(messages: List[Message], model: str, thread_id: str, tools):
         model_instance = ChatWatsonx(model_id=model, watsonx_client=client_model_instance)
     logger.info(f"Starting with input messages: {messages}")
     inputs = convert_messages_to_langgraph_format(messages)
+    validate_chat_history(inputs["messages"])
     logger.info(f"Calling langgraph with input: {inputs}")
     if tools:
        graph = create_react_agent(model_instance, tools=tools)
@@ -160,12 +160,36 @@ def get_llm_sync(messages: List[Message], model: str, thread_id: str, tools):
 def format_resp(struct):
     return "data: " + json.dumps(struct) + "\n\n"
 
+def validate_chat_history(messages: List[BaseMessage]):
+    tool_call_ids = set()
+    for msg in messages:
+        if isinstance(msg, AIMessage) and msg.tool_calls:
+            for tool_call in msg.tool_calls:
+                if isinstance(tool_call, dict):
+                    tool_call_ids.add(tool_call.get('id'))
+                else:
+                    tool_call_ids.add(tool_call.id)
+
+    for msg in messages:
+        if isinstance(msg, ToolMessage):
+            if msg.tool_call_id in tool_call_ids:
+                tool_call_ids.remove(msg.tool_call_id)
+
+    for tool_call_id in tool_call_ids:
+        logger.info(f"Fixing input that had no tool response for tool_call_id {tool_call_id}")
+        placeholder_message = ToolMessage(
+            content="Tool call failed or no response received.",
+            tool_call_id=tool_call_id,
+            name="unknown"
+        )
+        messages.append(placeholder_message)
+
 async def get_llm_stream(messages: List[Message], model: str, thread_id: str, tools):
     if tools:
         use_tools = True
     else:
         use_tools = False
-    send_tool_events = True
+    send_tool_events = False
     logger.info(f"LLM Stream with tools {tools}")
     model_init_overrides = {'temperature': 0, 'streaming': True}
     if not thread_id:
@@ -184,10 +208,13 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
     else:
         graph = create_react_agent(model_instance, tools=[])
     inputs = ""
+    accumulated_contents = ""
     try:
         inputs = convert_messages_to_langgraph_format(messages)
+        validate_chat_history(inputs["messages"])
         async for event in graph.astream_events(inputs, version="v2"):
             kind = event["event"]
+            logger.debug(f"event = {event}")
             if kind == "on_chat_model_stream":
                 content = event["data"]["chunk"].content
                 if content:
@@ -209,9 +236,10 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                             ],
                         }
                         event_content = format_resp(struct)
-                        logger.info("Sending event content: " + event_content)
+                        logger.debug("Sending event content: " + event_content)
+                        accumulated_contents += content
                         yield event_content
-                    if isinstance(content, list): 
+                    elif isinstance(content, list):
                         for item in content:
                             if 'type' in item:
                                 if item['type'] == 'text':
@@ -256,13 +284,13 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                     yield event_content
             elif kind == "on_tool_end": 
                 tool_name = event.get('name', '')
-                logger.debug(f"Done tool: {tool_name}")
+                logger.info(f"Event on_tool_end for tool: {tool_name}")
                 output = event.get('data', {}).get('output', {})
                 content = ''
                 if output and output.content:
                     content = output.content
                 run_id = event['run_id']      
-                logger.debug(f"Tool output for run {run_id} was: {content}")
+                logger.info(f"Tool output for run {run_id} was: {content}")
                 tool_call_id = ''
                 if output and output.tool_call_id:
                     tool_call_id = output.tool_call_id
@@ -299,7 +327,11 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                 logger.debug(f"Received event type: on_chat_model_end")
             else:
                 logger.debug("Received event type: " + kind)
-        yield ""
+            yield ""
+
+        if accumulated_contents:
+            logger.info("Final streamed content:\n" + accumulated_contents)
+
     except Exception as e:
         logger.error(f"Exception {str(e)}")
         traceback.print_exc()
