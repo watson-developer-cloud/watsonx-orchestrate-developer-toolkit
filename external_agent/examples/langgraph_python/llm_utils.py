@@ -10,7 +10,7 @@ from langgraph.prebuilt import create_react_agent
 from ibm_watsonx_ai import APIClient, Credentials
 from langchain_ibm import ChatWatsonx
 from models import Message, AIToolCall, Function, ChatCompletionResponse, Choice, MessageResponse
-from config import OPENAI_API_KEY, WATSONX_SPACE_ID, WATSONX_API_KEY, WATSONX_URL
+from config import OPENAI_API_KEY, WATSONX_SPACE_ID, WATSONX_API_KEY, WATSONX_URL, WATSONX_PROJECT_ID
 from token_utils import get_access_token
 
 logger = logging.getLogger()
@@ -132,8 +132,15 @@ def get_llm_sync(messages: List[Message], model: str, thread_id: str, tools):
             return "API key not set\n"
         model_instance = init_openai(model, {})
     else:
-        client_model_instance = APIClient(credentials=Credentials(url=WATSONX_URL, token=get_access_token(WATSONX_API_KEY)),
+        client_model_instance = None
+        if WATSONX_SPACE_ID:
+           client_model_instance = APIClient(credentials=Credentials(url=WATSONX_URL, token=get_access_token(WATSONX_API_KEY)),
                        space_id=WATSONX_SPACE_ID)
+        elif WATSONX_PROJECT_ID:
+            client_model_instance = APIClient(credentials=Credentials(url=WATSONX_URL, token=get_access_token(WATSONX_API_KEY)),
+                       project_id=WATSONX_PROJECT_ID)
+        else:
+            logger.error("You must either set WATSONX_SPACE_ID or WATSONX_PROJECT_ID")
         model_instance = ChatWatsonx(model_id=model, watsonx_client=client_model_instance)
     logger.info(f"Starting with input messages: {messages}")
     inputs = convert_messages_to_langgraph_format(messages)
@@ -200,8 +207,15 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
             yield "API key not set\n"
         model_instance = init_openai(model, model_init_overrides)
     else:
-        client_model_instance = APIClient(credentials=Credentials(url=WATSONX_URL, token=get_access_token(WATSONX_API_KEY)),
+        client_model_instance = None
+        if WATSONX_SPACE_ID:
+           client_model_instance = APIClient(credentials=Credentials(url=WATSONX_URL, token=get_access_token(WATSONX_API_KEY)),
                        space_id=WATSONX_SPACE_ID)
+        elif WATSONX_PROJECT_ID:
+            client_model_instance = APIClient(credentials=Credentials(url=WATSONX_URL, token=get_access_token(WATSONX_API_KEY)),
+                       project_id=WATSONX_PROJECT_ID)
+        else:
+            logger.error("You must either set WATSONX_SPACE_ID or WATSONX_PROJECT_ID")
         model_instance = ChatWatsonx(model_id=model, watsonx_client=client_model_instance)
     if use_tools:
         graph = create_react_agent(model_instance, tools=tools)
