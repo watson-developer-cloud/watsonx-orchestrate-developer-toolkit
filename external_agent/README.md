@@ -4,7 +4,7 @@ For official feature documentation, refer to [link](https://developer.ibm.com/ap
 
 ## Starter Guide to Using the External Agent Feature
 
-For examples, check out the `external_agent/examples`.
+For examples, check out the [examples](examples).
 
 ### Create the Agent
 Begin by creating an agent that exposes a chat streaming endpoint that emits the following events:
