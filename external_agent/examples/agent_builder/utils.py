@@ -131,6 +131,7 @@ async def get_llm_stream(messages: List[Message], thread_id: str):
                                     {
                                         "name": tool_call["function"]["name"],
                                         "args": _json_loads_no_fail(tool_call["function"]["arguments"]),
+                                        "id": tool_call["id"]
                                      }
                                     for tool_call in delta["tool_calls"]
                                 ]

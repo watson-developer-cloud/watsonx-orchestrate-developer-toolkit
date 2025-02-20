@@ -114,7 +114,6 @@ It is recommended to implement your own authentication security measures to ensu
 ### Step 3: Call the new External Agent from Orchestrate
 
 1. **In IBM watsonx orchestrate Web UI:**
-   - From the top left hamburger menu, select **Agent Configuration**.
    - Select **Chat** from the left-hand navigation.
    - Type a question that should route to the new agent, like `show me 2024-2025 premier league table`
    - The results from the external agent should be streamed to the IBM watsonx Orchestrate chat window
