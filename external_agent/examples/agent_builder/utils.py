@@ -17,7 +17,6 @@ logger.setLevel(logging.DEBUG)
 
 WATSONX_DEPLOYMENT_ID = os.getenv("WATSONX_DEPLOYMENT_ID")
 WATSONX_API_KEY = os.getenv("WATSONX_API_KEY")
-WATSONX_SPACE_ID = os.getenv("WATSONX_SPACE_ID")
 WATSONX_URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
 
 
@@ -54,7 +53,7 @@ def _get_access_token():
 
 def _get_wxai_client():
     credentials = {"url": WATSONX_URL, "token": _get_access_token()}
-    return APIClient(credentials, space_id=WATSONX_SPACE_ID)
+    return APIClient(credentials)
 
 
 def get_llm_sync(messages: List[Message]) -> list[Message]:
@@ -80,6 +79,13 @@ def format_resp(struct):
     return "data: " + json.dumps(struct) + "\n\n"
 
 
+def _json_loads_no_fail(json_string: str):
+    try:
+        return json.loads(json_string)
+    except:
+        return {}
+
+
 async def get_llm_stream(messages: List[Message], thread_id: str):
     """
 
@@ -99,27 +105,54 @@ async def get_llm_stream(messages: List[Message], thread_id: str):
             WATSONX_DEPLOYMENT_ID, payload
         ):
             logger.info(f"Received chunk from AI service: {chunk}")
-            result = json.loads(chunk)["choices"][0]["message"]
-
-            if result["role"] != "assistant" or "delta" not in result:
-                continue
+            try:
+                delta = json.loads(chunk)["choices"][0]["delta"]
+            except:
+                warning_msg = "It's likely that you are using an old AI service built with a wrong/obsolete response schema, please deploy a new AI service."
+                logger.warning(warning_msg)
+                raise RuntimeError(warning_msg)
 
             current_timestamp = int(time.time())
+            delta_id = str(uuid.uuid4())
             struct = {
-                "id": str(uuid.uuid4()),
-                "object": "thread.message.delta",
+                "id": delta_id,
+                "object": "thread.run.step.delta",
                 "created": current_timestamp,
                 "thread_id": thread_id,
-                "model": "wx.ai AI service",
-                "choices": [
-                    {
-                        "delta": {
-                            "content": result["delta"],
-                            "role": "assistant",
-                        }
-                    }
-                ],
+                "model": "wx.ai AI service"
             }
+            if delta["role"] == "assistant" and "tool_calls" in delta:
+                struct["choices"] = [{
+                        "delta": {
+                            "role": "assistant",
+                            "step_details": {
+                                "type": "tool_calls",
+                                "tool_calls": [
+                                    {
+                                        "name": tool_call["function"]["name"],
+                                        "args": _json_loads_no_fail(tool_call["function"]["arguments"]),
+                                        "id": tool_call["id"]
+                                     }
+                                    for tool_call in delta["tool_calls"]
+                                ]
+                            }
+                        }
+                    }]
+            elif delta["role"] == "tool":
+                struct["choices"] = [{"delta": {
+                    "role": "assistant",
+                    "step_details": {
+                        "type": "tool_response",
+                        "name": delta["name"],
+                        "tool_call_id": delta["tool_call_id"],
+                        "content": delta["content"],
+                        }
+                }}]
+            elif delta["role"] == "assistant" and "content" in delta:
+                struct["choices"] = [{"delta": delta}]
+            else:
+                # should not happen
+                logger.warning("Enable to parse delta: " + delta)
             event_content = format_resp(struct)
             logger.info("Sending event content: " + event_content)
             yield event_content
