@@ -13,6 +13,13 @@ To provide more background, IBM watsonx.ai AI Services is an upcoming feature fo
 
 Alternative to Agent Builder, you can also build a more customized agentic AI service in a more programmatic manner by using the [IBM watsonx.ai SDK](https://ibm.github.io/watsonx-ai-python-sdk/core_api.html#client.Deployments.create). Please refer to this [application template](https://github.com/IBM/watson-machine-learning-samples/tree/master/cloud/ai-service-templates/langgraph-react-agent) for more detail.
 
+## Change log
+
+- 2025/02/20: 
+  - the wrapper code in this example has been updated to work with the latest response schema of watsonx.ai Agent Builder; if you are having trouble with an old AI service deployed on watsonx.ai, you might need to rebuild the agent in watsonx.ai Agent Builder and re-deploy it as a new AI service;
+  - this example has been updated to work with CoT rendering in AI chat UI;
+  - simplification of authentication: space id is no longer required;
+
 ## Disclaimer
 
 IBM watsonx.ai AI services and Agent Builder are two upcoming features scheduled for release as of writing this. Please follow the official [homepage](https://www.ibm.com/products/watsonx-ai/ai-agent-development) for release announcement. This example is subject to changes.
@@ -34,13 +41,12 @@ It is recommended to implement your own authentication security measures to ensu
 
 ### Step 0: Create an AI deployment on IBM watsonx.ai
 
-- Login to watsonx.ai prompt lab
+- Login to watsonx.ai and enter Agent Lab
+![Alt text](./assets/wxai_home.png "Agent Lab in watsonx.ai home page")
 - Configure an Agent Builder template
 ![Alt text](./assets/agent-builder.png "Example of Agent Builder template configuration")
 - Deploy as an AI service by clicking the "Deploy" icon in the top right corner
-- Make a note of the space id, deployment id and your IBM cloud API key
-  - The space id can be found in the "Manage" tab in your deployment space page (opened by clicking the name of your deployment space in the "Deployment spaces" section in watsonx home page)
-![Alt text](./assets/space_id.png "Example of space id")
+- Make a note of the deployment id and your IBM cloud API key
   - The deployment id can be found as part of the API endpoints generated in the "API reference" tab in your deployment page (opened by clicking the name of your deployment in the "Deployments" tab in your deployment space page)
 ![Alt text](./assets/deployment_id.png "Example of deployment id")
   - Your IBM cloud API key can be obtained following [documentation](https://cloud.ibm.com/docs/account?topic=account-userapikey&interface=ui)
@@ -76,7 +82,6 @@ It is recommended to implement your own authentication security measures to ensu
    - Add the following environment variables:
      - `WATSONX_DEPLOYMENT_ID`
      - `WATSONX_API_KEY`
-     - `WATSONX_SPACE_ID`
      - `WATSONX_URL` (optional)
 
 5. **Test the Application:**
@@ -87,11 +92,9 @@ It is recommended to implement your own authentication security measures to ensu
 ### Step 2: Register the New Endpoint as an External Agent
 
 1. **In IBM watsonx orchestrate Web UI:**
-   - From the top left hamburger menu, select **Agent Configuration**.
-   - Select **Assistants** from the left-hand navigation.
-   - Click the **Add assistant** button on the top right.
-   - Choose **External Assistant** at the top of the dialog.
-   - Check the **External-agent Assistant** box.
+   - From the top left hamburger menu, select **AI agent Configuration**.
+   - Select **Agents** from the left-hand navigation.
+   - Click the **Add agent** button on the top right.
 
 2. **Enter Details:**
    - **Display Name:** e.g., agent that can search and code
@@ -107,7 +110,7 @@ It is recommended to implement your own authentication security measures to ensu
 1. **In IBM watsonx orchestrate Web UI:**
    - From the top left hamburger menu, select **Agent Configuration**.
    - Select **Chat** from the left-hand navigation.
-   - Type a question that should route to the new agent, like `2024-2025 english soccer premier league table`
+   - Type a question that should route to the new agent, like `show me 2024-2025 premier league table`
    - The results from the external agent should be streamed to the IBM watsonx Orchestrate chat window
    - In the screenshot below, the two conversation turns use the defined tools Google search and Python interpreter, respectively. 
 ![Alt text](./assets/demo.png "Example of a chat to the external agent from IBM watsonx Orchestrate")
