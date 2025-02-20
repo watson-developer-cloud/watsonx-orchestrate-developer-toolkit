@@ -103,6 +103,9 @@ It is recommended to implement your own authentication security measures to ensu
    - **Service Instance URL:** Use the Test URL with `/chat/completions` appended.
      - Example: `https://wxo-agent-test1-app1.1pj4w3r1pi47.us-south.codeengine.appdomain.cloud/chat/completions`
 
+3. **CoT rendering (Optional)**
+   - After you register your agent, you can enable CoT render in **AI agent Configuration** page, under **Agents** tab, click the name of your agent and toggle the option **Show thinking in chat**
+
 ![Alt text](./assets/register_wxo_external_agent.png "Example of registering an external agent to IBM watsonx Orchestrate")
 
 ### Step 3: Call the new External Agent from Orchestrate
