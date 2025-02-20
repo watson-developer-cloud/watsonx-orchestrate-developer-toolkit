@@ -103,10 +103,13 @@ It is recommended to implement your own authentication security measures to ensu
    - **Service Instance URL:** Use the Test URL with `/chat/completions` appended.
      - Example: `https://wxo-agent-test1-app1.1pj4w3r1pi47.us-south.codeengine.appdomain.cloud/chat/completions`
 
+![Alt text](./assets/register_wxo_external_agent.png "Example of registering an external agent to IBM watsonx Orchestrate")
+
 3. **CoT rendering (Optional)**
    - After you register your agent, you can enable CoT render in **AI agent Configuration** page, under **Agents** tab, click the name of your agent and toggle the option **Show thinking in chat**
 
-![Alt text](./assets/register_wxo_external_agent.png "Example of registering an external agent to IBM watsonx Orchestrate")
+![Alt text](./assets/cot_config.png "Example of registering an external agent to IBM watsonx Orchestrate")
+
 
 ### Step 3: Call the new External Agent from Orchestrate
 
@@ -115,5 +118,5 @@ It is recommended to implement your own authentication security measures to ensu
    - Select **Chat** from the left-hand navigation.
    - Type a question that should route to the new agent, like `show me 2024-2025 premier league table`
    - The results from the external agent should be streamed to the IBM watsonx Orchestrate chat window
-   - In the screenshot below, the two conversation turns use the defined tools Google search and Python interpreter, respectively. 
+   - In the screenshot below, the conversation shows how the agent uses Google search tool to answer a question. 
 ![Alt text](./assets/demo.png "Example of a chat to the external agent from IBM watsonx Orchestrate")
