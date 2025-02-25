@@ -292,6 +292,29 @@ async def get_llm_stream(messages: List[Message], model: str, thread_id: str, to
                                 }
                             ],
                          }
+                thinking_step_details = {
+                    "type": "thinking",
+                    "content": "The user's question will require an internet search using a search tool."
+                }
+                thinking_struct = {
+                    "id": str(uuid.uuid4()),
+                    "object": "thread.run.step.delta",
+                    "thread_id": thread_id,
+                    "model": model,
+                    "created": current_timestamp,
+                    "choices": [
+                        {
+                            "delta": {
+                                "role": "assistant",
+                                "step_details": thinking_step_details
+                            }
+                        }
+                    ]
+                }
+                thinking_event_content = format_resp(thinking_struct)
+                logger.info("Sending thinking event content: " + thinking_event_content)
+                if send_tool_events:
+                    yield thinking_event_content
                 event_content = format_resp(struct)
                 logger.info("Sending tool call event content: " + event_content)
                 if send_tool_events:
