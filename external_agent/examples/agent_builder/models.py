@@ -10,7 +10,8 @@ class Message(BaseModel):
         pattern="^(user|assistant|system|tool)$",
     )
     content: Optional[str] = Field(..., description="The content of the message")
-    tool_calls: Optional[Any] = None
+    tool_calls: Optional[list] = None
+
 
 class ExtraBody(BaseModel):
     thread_id: Optional[str] = Field(
