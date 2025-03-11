@@ -14,9 +14,9 @@ from models import Message
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
 
-
 WATSONX_DEPLOYMENT_ID = os.getenv("WATSONX_DEPLOYMENT_ID")
 WATSONX_API_KEY = os.getenv("WATSONX_API_KEY")
+
 WATSONX_URL = os.getenv("WATSONX_URL", "https://us-south.ml.cloud.ibm.com")
 
 
@@ -98,7 +98,11 @@ async def get_llm_stream(messages: List[Message], thread_id: str):
     """
     logger.info("wx.ai deployment streaming call start")
     client = _get_wxai_client()
-    payload = {"messages": [m.model_dump() for m in messages if m.role != "system"]}
+    for m in messages:
+        if m.role == "system":
+            m.role = "assistant"
+    payload = {"messages": [m.model_dump(exclude_defaults=True, exclude_unset=True) for m in messages]
+        }
     logger.info(f"wx.ai deployment streaming call payload {payload}")
     try:
         for chunk in client.deployments.run_ai_service_stream(
