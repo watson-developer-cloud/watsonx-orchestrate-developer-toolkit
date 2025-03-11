@@ -10,7 +10,8 @@ class Message(BaseModel):
         pattern="^(user|assistant|system|tool)$",
     )
     content: Optional[str] = Field(..., description="The content of the message")
-    tool_calls: Optional[list] = None
+    tool_calls: Optional[list] = None # for tool call msgs
+    tool_call_id: Optional[str] = None # for tool resp msgs
 
 
 class ExtraBody(BaseModel):

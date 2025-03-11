@@ -98,9 +98,11 @@ async def get_llm_stream(messages: List[Message], thread_id: str):
     """
     logger.info("wx.ai deployment streaming call start")
     client = _get_wxai_client()
-    payload = {"messages": [
-        {'role': m.role if m.role != 'tool' else 'assistant', 'content': m.content if m.content is not None else json.dumps(m.tool_calls)}
-        for m in messages if m.role != "system"]}
+    for m in messages:
+        if m.role == "system":
+            m.role = "assistant"
+    payload = {"messages": [m.model_dump(exclude_defaults=True, exclude_unset=True) for m in messages]
+        }
     logger.info(f"wx.ai deployment streaming call payload {payload}")
     try:
         for chunk in client.deployments.run_ai_service_stream(
