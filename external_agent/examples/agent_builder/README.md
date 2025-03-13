@@ -15,6 +15,8 @@ Alternative to Agent Builder, you can also build a more customized agentic AI se
 
 ## Change log
 
+- 2025/03/12:
+  - The wrapper code in this example has been updated to resolve a problem using the latest response schema of the watsonx.ai Agent Lab when using the AI service `run_ai_service_stream` API
 - 2025/02/20: 
   - the wrapper code in this example has been updated to work with the latest response schema of watsonx.ai Agent Builder; if you are having trouble with an old AI service deployed on watsonx.ai, you might need to rebuild the agent in watsonx.ai Agent Builder and re-deploy it as a new AI service;
   - this example has been updated to work with CoT rendering in AI chat UI;
