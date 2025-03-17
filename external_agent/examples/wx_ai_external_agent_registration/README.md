@@ -8,7 +8,7 @@ IBM watsonx.ai AI Services is an upcoming feature for deploying custom agentic s
 
 IBM watsonx.ai AI services and Agent Builder are two upcoming features scheduled for release as of writing this. Please follow the official [homepage](https://www.ibm.com/products/watsonx-ai/ai-agent-development) for release announcement. This example is subject to changes.
 
-## Wait... how is different than [this](#../examples/agent_builder/README.md])?
+## Wait... how is different than [this](#../agent_builder/README.md])?
 
 In `external_agent/examples/agent` you need to deploy a custom solution to interface your `watsonx.ai` Agent and watsonx Orchestrate. Now, you can register your `watsonx.ai` Agent directly into watsonx Orchestrate.
 
