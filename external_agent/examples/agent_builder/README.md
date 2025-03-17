@@ -4,6 +4,8 @@ Use these examples to kick-start your external agent development.
 
 For official feature documentation, refer to the [IBM Developer API Catalog](https://developer.ibm.com/apis/catalog/watsonorchestrate--custom-assistants/api/API--watsonorchestrate--ibm-watsonx-orchestrate-api#Register_an_external_chat_completions_agent__agents_external_chat_post).
 
+🚨 See "wx_ai_external_agent_registration" to integrate "watsonx.ai" Agent with watsonx Orchestrate natively using the API. 🚨
+
 ## Overview
 
 This example demonstrates how to deploy an external agent as an AI service in IBM watsonx.ai. The application leverages 
@@ -15,6 +17,8 @@ Alternative to Agent Builder, you can also build a more customized agentic AI se
 
 ## Change log
 
+- 2025/03/27:
+  - See recommended approach in "wx_ai_external_agent_registration" folder to integrate "watsonx.ai" Agent with watsonx Orchestrate natively using the API.
 - 2025/03/12:
   - The wrapper code in this example has been updated to resolve a problem using the latest response schema of the watsonx.ai Agent Lab when using the AI service `run_ai_service_stream` API
 - 2025/02/20: 
