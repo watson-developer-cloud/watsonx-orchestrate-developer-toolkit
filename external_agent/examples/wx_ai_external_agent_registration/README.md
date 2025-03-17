@@ -41,12 +41,12 @@ To register your watsonx.ai Agent with watsonx Orchestrate, use the [`external-c
 This is what an example payload looks like:
 ```
 {
-  "title": "Pet Agent Bot",
+"title": "Pet Agent Bot",
   "description": "wx.ai agent",
   "tags": [
     "agent_lab"
   ],
-  "name": "Pet/Dog Bot Agent",
+  "name": "Dog/Pet agent",
   "api_url": "<wx.ai streaming public inference api url>",
   "auth_scheme": "API_KEY",
   "auth_config": {
@@ -76,7 +76,7 @@ curl --request POST \
   "tags": [
     "agent_lab"
   ],
-  "name": "Pet/Dog Bot Agent",
+  "name": "Dog/Pet agent",
   "api_url": "<wx.ai streaming public inference api url>",
   "auth_scheme": "API_KEY",
   "auth_config": {
