@@ -11,7 +11,7 @@ FastAPI and [IBM watsonx.ai AI Service](https://www.ibm.com/products/watsonx-ai/
 
 To provide more background, IBM watsonx.ai AI Services is an upcoming feature for deploying custom agentic services and applications. Related to this, IBM watsonx.ai Agent Builder is another upcoming feature for building agents within a visual interface. This example guides you step by step to create an AI service using Agent builder, then deploy a Code Engine application that implements the watsonx Orchestrate external agent [`/chat/completions` endpoint](https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit/blob/main/external_agent/spec.yaml) using the `ai_service` and `ai_service_stream` endpoints exposed by your AI service, and finally register it as an external agent in watsonx Orchestrate.
 
-Alternative to Agent Builder, you can also build a more customized agentic AI service in a more programmatic manner by using the [IBM watsonx.ai SDK](https://ibm.github.io/watsonx-ai-python-sdk/core_api.html#client.Deployments.create). Please refer to this [application template]([https://github.com/IBM/watson-machine-learning-samples/tree/master/cloud/ai-service-templates/langgraph-react-agent](https://github.com/IBM/watsonx-developer-hub/tree/main/agents/base/langgraph-react-agent)) for more detail.
+Alternative to Agent Builder, you can also build a more customized agentic AI service in a more programmatic manner by using the [IBM watsonx.ai SDK](https://ibm.github.io/watsonx-ai-python-sdk/core_api.html#client.Deployments.create). Please refer to this [application template](https://github.com/IBM/watsonx-developer-hub/tree/main/agents/base/langgraph-react-agent) for more detail.
 
 ## Change log
 - 2025/04/02:
