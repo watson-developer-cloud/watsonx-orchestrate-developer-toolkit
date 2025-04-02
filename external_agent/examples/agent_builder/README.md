@@ -1,17 +1,19 @@
-# IBM Watsonx Orchestrate - External Agent Example
+# IBM Watsonx Orchestrate - watsonx.ai Agent Lab External Agent Example
 
-Use these examples to kick-start your external agent development.
+**Please note:  This example is now superceded by a built-in watsonx Orchestrate product feature.  Beginning with the April 2025 release, you can directly register 
+agents developed with watsonx.ai Agent Lab as external agents in watsonx Orchestrate. You no longer need to deploy a wrapper to Code Engine in the fashion described in this example.  Please refer to [Registering Agents from watsonx.ai](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/current?topic=agent-managing-agents-in-ai-chat#registering-agents-from-watsonxai) for more information.**
 
-For official feature documentation, refer to the [IBM Developer API Catalog](https://developer.ibm.com/apis/catalog/watsonorchestrate--custom-assistants/api/API--watsonorchestrate--ibm-watsonx-orchestrate-api#Register_an_external_chat_completions_agent__agents_external_chat_post).
 
 ## Overview
+
+For official feature documentation, refer to the [IBM Developer API Catalog](https://developer.ibm.com/apis/catalog/watsonorchestrate--custom-assistants/api/API--watsonorchestrate--ibm-watsonx-orchestrate-api#Register_an_external_chat_completions_agent__agents_external_chat_post).
 
 This example demonstrates how to deploy an external agent as an AI service in IBM watsonx.ai. The application leverages 
 FastAPI and [IBM watsonx.ai AI Service](https://www.ibm.com/products/watsonx-ai/ai-agent-development) to create a chat completion service that integrates with IBM watsonx models. It also includes AI tools for Google search and Python interpreter.
 
-To provide more background, IBM watsonx.ai AI Services is an upcoming feature for deploying custom agentic services and applications. Related to this, IBM watsonx.ai Agent Builder is another upcoming feature for building agents within a visual interface. This example guides you step by step to create an AI service using Agent builder, then deploy a Code Engine application that implements the watsonx Orchestrate external agent [`/chat/completions` endpoint](https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit/blob/main/external_agent/spec.yaml) using the `ai_service` and `ai_service_stream` endpoints exposed by your AI service, and finally register it as an external agent in watsonx Orchestrate.
+To provide more background, IBM watsonx.ai AI Services is a feature for deploying custom agentic services and applications. Related to this, IBM watsonx.ai Agent Lab (sometimes referred to as watsonx.ai Agent Builder) is another upcoming feature for building agents within a visual interface. This example guides you step by step to create an AI service using Agent Lab, then deploy a Code Engine application that implements the watsonx Orchestrate external agent [`/chat/completions` endpoint](https://github.com/watson-developer-cloud/watsonx-orchestrate-developer-toolkit/blob/main/external_agent/spec.yaml) using the `ai_service` and `ai_service_stream` endpoints exposed by your AI service, and finally register it as an external agent in watsonx Orchestrate.
 
-Alternative to Agent Builder, you can also build a more customized agentic AI service in a more programmatic manner by using the [IBM watsonx.ai SDK](https://ibm.github.io/watsonx-ai-python-sdk/core_api.html#client.Deployments.create). Please refer to this [application template](https://github.com/IBM/watsonx-developer-hub/tree/main/agents/base/langgraph-react-agent) for more detail.
+As an alternative to Agent Lab, you can also build a more customized agentic AI service in a more programmatic manner by using the [IBM watsonx.ai SDK](https://ibm.github.io/watsonx-ai-python-sdk/core_api.html#client.Deployments.create). Please refer to this [application template](https://github.com/IBM/watsonx-developer-hub/tree/main/agents/base/langgraph-react-agent) for more detail.
 
 ## Change log
 - 2025/04/02:
