@@ -6,14 +6,14 @@ import json
 class ModelName(str, Enum):
     mistral_large = "mistralai/mistral-large"
     llama_3_1_405b = "meta-llama/llama-3-405b-instruct"
-    llama_3_1_70b = "meta-llama/llama-3-1-70b-instruct"
+    llama_3_2_90b = "meta-llama/llama-3-2-90b-vision-instruct"
     gpt_4_o_mini = "gpt-4o-mini"
 
 class ToolName(str, Enum):
     web_search_duckduckgo = "web_search_duckduckgo"
     news_search_duckduckgo = "news_search_duckduckgo"
 
-DEFAULT_MODEL=ModelName.llama_3_1_70b
+DEFAULT_MODEL=ModelName.llama_3_2_90b
 
 class Function(BaseModel):
     name: str
