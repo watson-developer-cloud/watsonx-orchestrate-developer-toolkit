@@ -1,16 +1,26 @@
 import logging
+import sys
+import traceback
 import warnings
 
-from beeai_python.agent import WxoBeeAgent
-from beeai_python.utils import create_llm, init_memory
-from beeai_python.models import (
-    ChatCompletionRequestBody,
+from beeai_framework.agents.experimental import RequirementAgent
+from beeai_framework.agents.experimental.requirements.conditional import (
+    ConditionalRequirement,
 )
-from fastapi import FastAPI, HTTPException, Header
-from sse_starlette import EventSourceResponse
-from starlette import status
-from starlette.responses import JSONResponse
+from beeai_framework.errors import FrameworkError
+from beeai_framework.middleware.trajectory import GlobalTrajectoryMiddleware
+from beeai_framework.tools import Tool
+from beeai_framework.tools.think import ThinkTool
+from beeai_framework.adapters.watsonx_orchestrate import (
+    WatsonxOrchestrateServer,
+    WatsonxOrchestrateServerConfig,
+)
+from beeai_framework.memory import UnconstrainedMemory
+from beeai_framework.adapters.watsonx import WatsonxChatModel
+
+
 from beeai_python.settings import AppSettings
+from beeai_python.tools import search_web_tool
 
 warnings.filterwarnings("ignore")
 
@@ -22,40 +32,52 @@ formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(messag
 console_handler.setFormatter(formatter)
 logger.addHandler(console_handler)
 
-app = FastAPI()
-
-
-@app.post("/chat/completions")
-async def chat_completions(
-    request: ChatCompletionRequestBody,
-    thread_id: str = Header("", alias="X-IBM-THREAD-ID"),
-    api_key: str | None = Header(None, alias="X-API-Key"),
-):
-    if not thread_id and request.extra_body:
-        thread_id = request.extra_body.thread_id or ""
-
-    logger.info(f"Received request\n{request.model_dump_json()} (ID: {thread_id})")
-
-    if api_key != AppSettings.api_key:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing or invalid API key",
-        )
-
-    agent = await WxoBeeAgent.create(
-        llm=create_llm(request.model, stream=request.stream),
-        memory=await init_memory(request.messages),
-        thread_id=thread_id,
+def main() -> None:
+    memory = UnconstrainedMemory()
+    llm = WatsonxChatModel(
+        model_id=AppSettings.watsonx_default_model.removeprefix("watsonx/").lower(),
+        api_key=AppSettings.watsonx_api_key,
+        project_id=AppSettings.watsonx_project_id,
+        base_url=AppSettings.watsonx_url,
+        middlewares=[
+            GlobalTrajectoryMiddleware(enabled=AppSettings.log_intermediate_steps)
+        ],
     )
-    if request.stream:
-        stream = agent.stream()
-        return EventSourceResponse(stream)
-    else:
-        content = await agent.run()
-        return JSONResponse(content=content.model_dump())
+    agent = RequirementAgent(
+        llm=llm,
+        memory=memory,
+        tools=[ThinkTool(), search_web_tool],
+        role="a deep researcher",
+        instructions=[
+            "Your task is to conduct in-depth research on the given topic.",
+            "Before you start, thoroughly prepare a step-by-step plan for how you will solve the task.",
+            "After each action, reflect on what you have obtained and what you need to do to gather evidence for the final answer.",
+        ],
+        middlewares=[
+            GlobalTrajectoryMiddleware(
+                included=[Tool], enabled=AppSettings.log_intermediate_steps
+            )
+        ],
+        requirements=[
+            ConditionalRequirement(ThinkTool, consecutive_allowed=False),
+            ConditionalRequirement(
+                ThinkTool, force_at_step=1, force_after=[search_web_tool]
+            ),
+        ],
+    )
+
+    config = WatsonxOrchestrateServerConfig(
+        port=8080, host="0.0.0.0", api_key=AppSettings.api_key
+    )
+    server = WatsonxOrchestrateServer(config=config)
+    server.register(agent)
+
+    server.serve()
 
 
 if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    try:
+        main()
+    except FrameworkError as e:
+        traceback.print_exc()
+        sys.exit(e.explain())

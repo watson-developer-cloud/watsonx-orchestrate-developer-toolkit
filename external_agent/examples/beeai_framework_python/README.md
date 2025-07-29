@@ -6,7 +6,7 @@ For official feature documentation, refer to the [IBM Developer API Catalog](htt
 
 ## Overview
 
-The application leverages FastAPI and [BeeAI Framework](https://framework.beeai.dev) which exposes chat completion endpoint that is used to integrate with IBM Watsonx Orchestrate.
+The application uses built-in support for the Watsonx Orchestrate in the [BeeAI Framework](https://framework.beeai.dev/integrations/watsonx-orchestrate).
 Internally the script uses [RequirementAgent](https://framework.beeai.dev/experimental/requirement-agent) with Tavily Search tool (see `wxo_beeai/agent.py`).
 
 ## Deployment Instructions

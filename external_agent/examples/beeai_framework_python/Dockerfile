@@ -45,4 +45,4 @@ COPY . /app
 # Run Application
 EXPOSE 8080
 
-ENTRYPOINT ["poetry", "run", "uvicorn", "beeai_python.app:app", "--host", "0.0.0.0", "--port", "8080"]
+ENTRYPOINT ["poetry", "run", "python", "beeai_python/app.py"]
