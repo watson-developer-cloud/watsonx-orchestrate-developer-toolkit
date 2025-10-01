@@ -9,8 +9,6 @@ from pymilvus import connections, utility
 # If this is true, then we regenerate the index even if it already exists
 FORCE_INDEXING=False
 
-WATSONX_AI_URL="https://us-south.ml.cloud.ibm.com"
-
 SOURCE_FILES=["./sample-documents/IBM_Annual_Report_2023.pdf"]
 SOURCE_URLS=["https://www.ibm.com/annualreport/assets/downloads/IBM_Annual_Report_2023.pdf"]
 SOURCE_TITLES=["IBM Annual Report 2023"]
@@ -18,16 +16,18 @@ SOURCE_TITLES=["IBM Annual Report 2023"]
 COLLECTION_NAME=os.environ.get("MILVUS_COLLECTION_NAME")
 
 EMBED = WatsonxEmbeddings(
-        model_id="ibm/slate-125m-english-rtrvr-v2",
-        url=WATSONX_AI_URL,
-        apikey=os.environ.get("WATSONX_AI_APIKEY"),
+        model_id="ibm/slate-30m-english-rtrvr",
+        url=os.environ.get("WATSONX_AI_URL"),
+        username=os.environ.get("WATSONX_AI_USERNAME"),
+        password=os.environ.get("WATSONX_AI_PASSWORD"),
         project_id=os.environ.get("WATSONX_AI_PROJECT_ID")
     )
 
 MILVUS_CONNECTION = {
     "uri": f"https://{os.environ.get('MILVUS_HOST')}:{os.environ.get('MILVUS_PORT')}",
     "user": os.environ.get("MILVUS_USER"),
-    "password": os.environ.get("MILVUS_PASSWORD")
+    "password": os.environ.get("MILVUS_PASSWORD"),
+    "server_pem_path": os.environ.get("MILVUS_PEM_PATH")
     }
 
 CHUNK_SIZE=500
@@ -93,8 +93,14 @@ def load_docs_pdf(filenames, urls, titles):
 
 def run(force_indexing=False):
     print(MILVUS_CONNECTION)
-
-    connections.connect(uri=MILVUS_CONNECTION["uri"], secure=True, alias="default", user=MILVUS_CONNECTION["user"], password=MILVUS_CONNECTION["password"])
+    connections.connect(
+        uri=MILVUS_CONNECTION["uri"], 
+        secure=True, 
+        alias="default", 
+        user=MILVUS_CONNECTION["user"], 
+        password=MILVUS_CONNECTION["password"], 
+        server_pem_path=MILVUS_CONNECTION["server_pem_path"]
+        )
     has = utility.has_collection(COLLECTION_NAME)
     print(f"Does collection {COLLECTION_NAME} exist in Milvus: {has}")
 
