@@ -1,11 +1,12 @@
-# How to set up Agent Knowledge with the on-premise watsonx.data Milvus in watsonx Orchestrate CP4D 
-This document explains how to set up Agent Knowledge with the Milvus service from watsonx.data on Cloud Pak for Data (on-prem) as the external knowledge source in watsonx Orchestrate CP4D.
+# How to set up Agent Knowledge in watsonx Orchestrate CP4D with watsonx.data Milvus CP4D and watsonx.ai CP4D  
+This document explains how to set up watsonx.data Milvus CP4D as a content repository of Agent Knowledge in watsonx Orchestrate CP4D by using the embedding model in watsonx.ai CP4D.
 
 ## Before you begin
 1. Provision a watsonx.data instance
-    * watsonx.data on Cloud Pak for Data (on-prem): follow [this doc](https://www.ibm.com/docs/en/cloud-paks/cp-data/5.0.x?topic=services-watsonxdata) to install and set up watsonx.data on Cloud Pak for Data 
+    * watsonx.data on Cloud Pak for Data (on-prem): follow [this doc](https://www.ibm.com/docs/en/cloud-paks/cp-data/5.2.x?topic=installing-administering-cloud-pak-data) to install and set up watsonx.data on Cloud Pak for Data 
 2. Add an Milvus service in the watsonx.data console
-    * watsonx.data on Cloud Pak for Data (on-prem): [Adding a Milvus service](https://www.ibm.com/docs/en/watsonx/watsonxdata/2.0.x?topic=milvus-adding-service)
+    * watsonx.data on Cloud Pak for Data (on-prem): [Adding a Milvus service](https://www.ibm.com/docs/en/watsonxdata/standard/2.2.x?topic=milvus-adding-service)
+3. This guide focuses on how to setup watsonx.data Milvus CP4D as the content repository. For how to setup watsonx.ai CP4D and watsonx Orchestrate CP4D, please refer to the relevant documents.
 
 ## Table of contents
 * [Step 1: Collect Milvus connection info](#step-1-collect-milvus-connection-info)
@@ -14,9 +15,7 @@ This document explains how to set up Agent Knowledge with the Milvus service fro
 * [Step 2: Ingest data into Milvus](#step-2-ingest-data-into-milvus)
   * [Option 1: Ingest data through watsonx.ai](#option-1-ingest-data-through-watsonxai)
   * [Option 2: Ingest data using custom code](#option-2-ingest-data-using-custom-code)
-* [Step 3: Connect to watsonx Orchestrate or Assistant](#step-3-connect-to-watsonx-orchestrate-or-assistant)
-  * [Option 1: Use the built-in Milvus search integration](#option-1-use-the-built-in-milvus-search-integration)
-  * [Option 2: Use the Custom Service search](#option-2-use-the-custom-service-search)
+* [Step 3: Connect to Agent Knowledge in watsonx Orchestrate](#step-3-connect-to-agent-knowledge-in-watsonx-orchestrate)
 
 ## Step 1: Collect Milvus connection info
 ### Get the credentials
