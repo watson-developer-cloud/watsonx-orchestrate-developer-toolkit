@@ -1,5 +1,5 @@
-# How to set up Agent Knowledge in watsonx Orchestrate CP4D with watsonx.data Milvus CP4D and watsonx.ai CP4D  
-This document explains how to set up watsonx.data Milvus CP4D as a content repository of Agent Knowledge in watsonx Orchestrate CP4D by using the embedding model in watsonx.ai CP4D.
+# How to set up watsonx.data Milvus CP4D as a content repository of Agent Knowledge in watsonx Orchestrate CP4D by using an embedding model in watsonx.ai CP4D 
+This document explains how to set up watsonx.data Milvus CP4D as a content repository of Agent Knowledge in watsonx Orchestrate CP4D by using an embedding model in watsonx.ai CP4D.
 
 ## Before you begin
 1. Provision a watsonx.data instance
