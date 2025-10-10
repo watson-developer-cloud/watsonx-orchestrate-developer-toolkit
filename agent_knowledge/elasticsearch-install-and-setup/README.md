@@ -1,17 +1,18 @@
 # Elasticsearch Installation and Setup Documentation
 
-This directory contains documentation for installing and setting up Elasticsearch along with related tools and integrations.
+This directory contains documentation for installing and setting up Elasticsearch along with related guides and integrations.
 
 ## Elasticsearch Setup
-- [Guide to installing Docker or Docker alternatives](how_to_install_docker.md): A guide explaining Docker and Docker Compose installation options, essential for running Elasticsearch-related applications.
-- [Set up Elasticsearch from IBM Cloud and integrate it with Watson Assistant](ICD_Elasticsearch_install_and_setup.md): Instructions for provisioning Elasticsearch instance on IBM Cloud and setting up related services like Kibana.
-- [Set up watsonx Discovery (Elasticsearch) and integrate it with Watson Assistant in CloudPak](watsonx_discovery_install_and_setup.md): Documentation for setting up Watsonx Discovery (Elasticsearch) and integrating it with Watson Assistant in CloudPak.
+- [Install Docker or Docker alternatives](how_to_install_docker.md): A guide explaining Docker and Docker Compose installation options, essential for running Elasticsearch-related applications.
+- [Set up Elasticsearch from IBM Cloud and integrate it with watsonx Orchestrate](ICD_Elasticsearch_install_and_setup.md): Instructions for provisioning Elasticsearch instance on IBM Cloud and setting up Agent Knowledge in watsonx Orchestrate.
+- [Set up watsonx Discovery (Elasticsearch) and integrate it with watsonx Orchestrate on-prem](watsonx_discovery_install_and_setup.md): Documentation for setting up watsonx Discovery (Elasticsearch) and integrating it with watsonx Orchestrate on-prem.
 
-## Elasticsearch integration with Watson Assistant
-### Option 1: Set up a custom Elasticsearch extension
-You can follow the guide [here](../../starter-kits/elasticsearch/README.md) to build a custom Elasticsearch extension allowing your assistant to search for information in an Elasticsearch index and show what it finds in the chat.
-### Option 2: Use the built-in Search integration
-You can set up search over Elasticsearch indices using the built-in search integration. Please follow the instructions [here](https://cloud.ibm.com/docs/watson-assistant?topic=watson-assistant-search-elasticsearch-add) to set up the Search integration for your assistant.
+## Elasticsearch integration with watsonx Orchestrate
+### Option 1: Add Knowledge to your agents in the Agent Builder UI
+watsonx Orchestrate Agent Builder doc: https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-adding-knowledge
+
+### Option 2: Create Knowledge bases via watsonx Orchestrate ADK (Agent Development Kit)
+ADK doc: https://developer.watson-orchestrate.ibm.com/knowledge_base/overview
 
 #### Configure the Advanced Elasticsearch Settings
 There are two settings under `Advanced Elasticsearch Settings` for using custom query body and custom filters to achieve advanced search use cases. See the guide [How to configure Advanced Elasticsearch Settings](./how_to_configure_advanced_elasticsearch_settings.md) for more details. 
