@@ -5,8 +5,7 @@ This is a documentation about how to set up Elasticsearch from IBM Cloud and cre
 * [Step 1: Provision an Elasticsearch instance on IBM Cloud](#step-1-provision-an-elasticsearch-instance-on-ibm-cloud)
 * [Step 2: Set up Kibana to connect to Elasticsearch](#step-2-set-up-kibana-to-connect-to-elasticsearch)
 * [Step 3: Create an Elasticsearch index (keyword-search)](#step-3-create-an-elasticsearch-index-keyword-search)
-* [Step 4: Set up Watson Assistant search extension using Elasticsearch index](#step-4-set-up-watson-assistant-search-extension-using-elasticsearch-index)
-* [Step 5: Enable semantic search with ELSER](#step-5-enable-semantic-search-with-elser)
+* [Step 4: Enable semantic search with ELSER](#step-5-enable-semantic-search-with-elser)
 
 
 ## Step 1: Provision an Elasticsearch instance on IBM Cloud
@@ -73,22 +72,6 @@ With default settings, an Elasticsearch index does keyword search.
       ```
     * Append `--cacert <path-to-your-cert>` to the cURL for SSL connection or append `--insecure` to the cURL commands to ignore the certificate
     * If you are able to run the `Build your first search query` command at the last step, your Elasticsearch index has been set up successfully!
-
-## Step 4: Set up Watson Assistant search extension using Elasticsearch index
-* Provision a Watson Assistant instance from the [IBM cloud catalog](https://cloud.ibm.com/catalog/services/watsonx-assistant)
-* Create a new Assistant in the new experience 
-* Add a Search extension to your Assistant  
-  Please follow the [Elasticsearch search integration set up](https://cloud.ibm.com/docs/watson-assistant?topic=watson-assistant-search-elasticsearch-add) documentation for more details.  
-
-* Verify the Search extension  
-  If you have used your index created at Step 3 to set up the Search integration, you can verify it by the following examples:
-    * Verify the basic search  
-      In your preview chat or draft webchat, type in `Who wrote 1984?`. If you see the Elasticsearch search results, your search extension has been set up successfully.  
-      <img src="assets/wa_elasticsearch_result.png" width="280" height="343" />
-    * Verify Conversational Search (beta)  
-      Go to your Search extension, find the Conversation Search toggle, toggle it on and save it. Then go to your preview chat or draft webchat, type in `Who wrote 1984?`.
-      If you see an answer instead of a list of research result, your conversational search is working properly.  
-      <img src="assets/wa_conversational_search_result.png" width="281" height="261" />
 
 
 ## Step 5: Enable semantic search with ELSER
@@ -248,3 +231,7 @@ To enable semantic search for your Search extension on Watson Assistant, you jus
 Notes:
 * `$QUERY` is the query variable that contains the user search query by default.
 * `.elser_model_2_linux-x86_64` is an optimized version of the ELSER v2 model and is preferred to use if it is available. Otherwise, use `.elser_model_2` for the regular ELSER v2 model or `.elser_model_1` for ELSER v1.
+
+
+## What's next?
+### [Integrate Elasticsearch with watsonx Orchestrate](README.md#elasticsearch-integration-with-watsonx-orchestrate)

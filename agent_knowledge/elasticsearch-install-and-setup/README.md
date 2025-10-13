@@ -5,7 +5,7 @@ This directory contains documentation for installing and setting up Elasticsearc
 ## Elasticsearch Setup
 - [Install Docker or Docker alternatives](how_to_install_docker.md): A guide explaining Docker and Docker Compose installation options, essential for running Elasticsearch-related applications.
 - [Set up Elasticsearch from IBM Cloud and integrate it with watsonx Orchestrate](ICD_Elasticsearch_install_and_setup.md): Instructions for provisioning Elasticsearch instance on IBM Cloud and setting up Agent Knowledge in watsonx Orchestrate.
-- [Set up watsonx Discovery (Elasticsearch) and integrate it with watsonx Orchestrate on-prem](watsonx_discovery_install_and_setup.md): Documentation for setting up watsonx Discovery (Elasticsearch) and integrating it with watsonx Orchestrate on-prem.
+- [Set up watsonx Discovery (aka Elasticsearch on-prem) and integrate it with watsonx Orchestrate on-prem](watsonx_discovery_install_and_setup.md): Documentation for setting up watsonx Discovery (aka Elasticsearch on-prem) and integrating it with watsonx Orchestrate on-prem.
 
 ## Elasticsearch integration with watsonx Orchestrate
 ### Option 1: Add Knowledge to your agents in the Agent Builder UI
