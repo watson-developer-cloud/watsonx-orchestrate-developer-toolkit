@@ -54,7 +54,7 @@ You can ingest data into Milvus vector database either through watsonx.ai or by 
 2. Click `Playground` > `Run Flow` to ingest the data
 <img src="./assets/use-langflow-to-ingest-data.png" width="1080" height="574" />
 
-**NOTE: By default, `_id` and `$vectorize` are the two main fields created in the Astra DB collection schema. When setting up Milvus as content repository in Agent Knowledge, you must configure the `Title` and `Body` fields with these two fields.**
+**NOTE: By default, `_id` and `$vectorize` are the two main fields created in the Astra DB collection schema. When setting up Astra DB as content repository in Agent Knowledge, you must configure the `Title` and `Body` fields with these two fields.**
 
 
 ## Step 3: Connect to Agent Knowledge in watsonx Orchestrate
