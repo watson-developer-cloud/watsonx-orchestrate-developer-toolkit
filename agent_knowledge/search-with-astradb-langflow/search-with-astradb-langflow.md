@@ -1,92 +1,65 @@
-# How to set up watsonx.data Milvus Cloud Pak for Data as a content repository of Agent Knowledge in watsonx Orchestrate Cloud Pak for Data by using an embedding model in watsonx.ai Cloud Pak for Data 
-This document explains how to set up watsonx.data Milvus Cloud Pak for Data as a content repository of Agent Knowledge in watsonx Orchestrate Cloud Pak for Data by using an embedding model in watsonx.ai Cloud Pak for Data.
+# How to use LangFlow to ingest data into Astra DB to be used as the knowledge source of Agent Knowledge 
+This document explains how to use LangFlow to ingest data into Astra DB, to be used as the knowledge source of Agent Knowledge.
 
 ## Before you begin
-1. Provision a watsonx.data instance
-    * To install and set up watsonx.data on Cloud Pak for Data (on-prem), see [Installing and administering Cloud Pak for Data](https://www.ibm.com/docs/en/cloud-paks/cp-data/5.2.x?topic=installing-administering-cloud-pak-data)  
-2. Add a Milvus service in the watsonx.data console
-    * To add a Milvus service on Cloud Pak for Data (on-prem), see [Adding a Milvus service](https://www.ibm.com/docs/en/watsonxdata/standard/2.2.x?topic=milvus-adding-service)
-3. This guide focuses on how to set up watsonx.data Milvus on Cloud Pak for Data as the content repository. For instructions on configuring watsonx.ai and watsonx Orchestrate on Cloud Pak for Data, refer to their respective documentation.
+1. Sign up for Astra DB
+    * To sign up for Astra DB, see [Sign up for Astra DB](https://astra.datastax.com/)  
+2. Get access to LangFlow
+    * To install LangFlow Desktop, see [Install LangFlow Desktop](https://www.langflow.org/desktop)
+    * To sign up for managed LangFlow, see [Sign up for managed LangFlow](https://astra.datastax.com/langflow)
 
 ## Table of contents
-* [Step 1: Collect Milvus connection information](#step-1-collect-milvus-connection-information)
-  * [Get the credentials](#get-the-credentials)
-  * [Get other connection details](#get-other-connection-details)
-* [Step 2: Ingest data into Milvus](#step-2-ingest-data-into-milvus)
-  * [Option 1: Ingest data through watsonx.ai](#option-1-ingest-data-through-watsonxai)
-  * [Option 2: Ingest data using custom code](#option-2-ingest-data-using-custom-code)
+* [Step 1: Prepare Astra DB and collect the connection information](#step-1-prepare-astra-db-and-collect-the-connection-information)
+  * [Prepare Astra DB](#prepare-astra-db)
+  * [Collect the connection information](#collect-the-connection-information)
+* [Step 2: Use LangFlow to ingest data into Astra DB](#step-2-use-langflow-to-ingest-data-into-astra-db)
+  * [Add the Astra DB component](#add-the-astra-db-component)
+  * [Add other components](#add-other-components)
+  * [Connect the components and run the ingestion](#connect-the-components-and-run-the-ingestion)
 * [Step 3: Connect to Agent Knowledge in watsonx Orchestrate](#step-3-connect-to-agent-knowledge-in-watsonx-orchestrate)
 
-## Step 1: Collect Milvus connection information
-### Get the credentials
-#### Username
-The default username is `cpadmin` for the Milvus service on watsonx.data. You can also find the username in the Milvus "Access control" panel in the `Infrastructure Manager` of the watsonx.data instance.
+## Step 1: Prepare Astra DB and collect the connection information
+### Prepare Astra DB
+1. Login to Astra DB
+2. Create a new database, or select an existing database
+3. Go to `Data Explorer` tab > `Collections and Tables` drop down, select `Create collection`
+4. Enter `Collection name`, toggle on `Vector-enabled collection`, select `Embedding generation method`, `Embedding model`, `Dimension`, `Similarity metric`, click `Create collection`
+<img src="./assets/create-astra-db-collection.png" width="1080" height="574" />
 
-#### Password
-Use the password that you created for `cpadmin` or a different user that has the access to the Milvus service as identified in the `Infrastructure Manager`.
+### Collect the connection information
+#### Token
+1. Login to Astra DB
+2. On the upper right of the portal, click `Settings` > `Tokens`
+3. Choose `Role`, `Description`, `Expiration`, and click on `Generate token`
+4. Take a note of the generated token 
 
-### Get other connection details
-Apply the following steps to collect additional Milvus connection details from the watsonx.data console:
+#### Database name and collection name
+Take a note of the database name and the collection name as used in the `Prepare Astra DB` section.
 
-1. Go to the `Infrastructure manager` page.
-2. Click the Milvus service to open the `Details` page.
-3. Click on `View connect details` to view more connection details.
-4. Collect the GRPC `host`, `port`, and the SSL certificate from the service details.
-
-## Step 2: Ingest data into Milvus
+## Step 2: Use LangFlow to ingest data into Astra DB
 You can ingest data into Milvus vector database either through watsonx.ai or by using custom code.
-### Option 1: Ingest data through watsonx.ai
-#### Create a Milvus connection
-On the watsonx.ai Project Assets page, click on `New asset` > choose `Connect a data source` > choose `Milvus` > click `Next` > fill in the connection details and credentials as below > `Test connection` > click `Create`.
+### Add the `Astra DB` component
+1. Launch LangFlow and create a project
+2. In `Components` > `Vector Stores`, drag and drop `Astra DB` to the canvas
+3. In the `Astra DB` component, fill in `Astra DB Application Token`
+4. Select `Database` and `Collection` as used in `Step 1`
 
-<img src="./assets/create-milvus-connection.png" width="1080" height="574" />
+### Add other components
+1. In `Components` > `Data`, drag and drop `File` to the canvas, and choose the file(s) to upload
+2. In `Components` > `Processing`, drag and drop `Split text` to the canvas, and enter `Chunk Overlap` and `Chunk Size`
+3. In `Components` > `Outputs`, drag and drop `Chat Output` to the canvas
 
-#### Create a vector index and upload documents
-On the Watsonx.ai Project Assets page, use the Milvus connection configured in the previous step to create a vector index and upload documents. Do the following steps:
-1. On the watsonx.ai Project Assets page, click on `New asset` > choose `Ground gen AI with vectorized documents`.
-2. On the left-side panel, select `watsonx.data Milvus` as the vector store > fill in name and description > select the Milvus connection created earlier. 
-3. Select the Milvus connection created earlier > Select `Database` and `Embeddings model` from the dropdowns > click `Next`. For example,  
-<img src="./assets/create-milvus-index-watsonx-ai.png" width="1080" height="574" />
+### Connect the components and run the ingestion
+1. Connect all the components as shown in the screen capture below
+2. Click `Playground` > `Run Flow` to ingest the data
+<img src="./assets/use-langflow-to-ingest-data.png" width="1080" height="574" />
 
-4. Click `New collection` to create a new collection.
-5. Enter a unique collection name, select the files to include in the Milvus collection, and then click `Create`. Note the values for the `Document name` and the `Text` under `Advanced settings`, for later use during Agent Knowledge setup. 
-<img src="./assets/create-milvus-collection-and-ingest-watsonx-ai.png" width="1080" height="574" />
+**NOTE: By default, `_id` and `$vectorize` are the two main fields created in the Astra DB collection schema. When setting up Milvus as content repository in Agent Knowledge, you must configure the `Title` and `Body` fields with these two fields.**
 
-6. Once the document upload is complete, you can start testing it in the prompt lab.
-
-**NOTE: By default, `document_name` and `text` are the two main fields created in the Milvus collection schema. When searching this Milvus collection using custom code, you must specify these two fields as `output_fields`. When setting up Milvus as content repository in Agent Knowledge, you must configure the `Title` and `Body` fields with these two fields.**
-
-### Option 2: Ingest data using custom code
-To ingest documents into Milvus, refer to the sample code: [../examples/index-with-milvus.py](../examples/index-with-milvus.py). To run the code, 
-1. Install dependencies.
-   ```bash
-   python3 -m pip install pymilvus langchain langchain-milvus langchain-ibm ibm-watsonx-ai PyPDF2
-   ```
-2. Create environment variables for Milvus credentials.
-  ```bash
-  export MILVUS_HOST="Your Milvus GRPC host"
-  export MILVUS_PORT="Your Milvus GRPC port"
-  export MILVUS_USER="cpadmin" // The default username for watsonx.data Milvus on-prem
-  export MILVUS_PASSWORD="Your watsonx.data Milvus on-prem password"
-  export MILVUS_PEM_PATH="the file path to the watsonx.data Milvus on-prem TLS certificate"
-  export MILVUS_COLLECTION_NAME="Your Milvus collection name" // It can be anything
-
-  export WATSONX_AI_URL="Your watsonx.ai on-prem URL"
-  export WATSONX_AI_USERNAME="Your watsonx.ai on-prem username" // watsonx.ai embeddings model is used to create vectors
-  export WATSONX_AI_PASSWORD="Your watsonx.ai on-prem password" // watsonx.ai embeddings model is used to create vectors
-  export WATSONX_AI_PROJECT_ID="Your watsonx.ai project ID" // watsonx.ai project ID is required to access the embeddings models
-  ```
-3. Update the `SOURCE_FILES`, `SOURCE_URLS`, and `SOURCE_TITLES` variables at the beginning of the script to your file names, urls, and titles respectively.
-4. Run the script.
-   ```bash
-   python3 index-with-milvus.py
-   ```
 
 ## Step 3: Connect to Agent Knowledge in watsonx Orchestrate
 
-**NOTE: The embedding model used for search in [Step 3](#step-3-connect-to-agent-knowledge-in-watsonx-orchestrate) must align with the embedding model used for data ingestion in [Step 2](#step-2-ingest-data-into-milvus).**
+This option allows you to integrate with your Astra DB service through the Agent Knowledge feature of watsonx Orchestrate.
 
-This option allows you to integrate with your watsonx.data Milvus on-prem service through the Agent Knowledge feature of watsonx Orchestrate.
-
-For detailed instructions on setting up watsonx.data Milvus (on-prem) through the Agent Knowledge feature of watsonx Orchestrate, see [Connecting to a Milvus content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-milvus-content-repository).
+For detailed instructions on setting up Astra DB through the Agent Knowledge feature of watsonx Orchestrate, see [Connecting to an Astra DB content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-astra-db-content-repository).
 
