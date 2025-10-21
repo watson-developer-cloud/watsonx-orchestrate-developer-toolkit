@@ -74,7 +74,7 @@ With default settings, an Elasticsearch index does keyword search.
     * If you are able to run the `Build your first search query` command at the last step, your Elasticsearch index has been set up successfully!
 
 
-## Step 5: Enable semantic search with ELSER
+## Step 4: Enable semantic search with ELSER
 This step is to enable semantic search using ELSER. Here are the tutorials from Elasticsearch doc:  
 ELSER v1: https://www.elastic.co/guide/en/elasticsearch/reference/8.10/semantic-search-elser.html  
 ELSER v2: https://www.elastic.co/guide/en/elasticsearch/reference/current/semantic-search-elser.html
@@ -212,8 +212,8 @@ Notes:
 * You can also use `API_KEY` for authorization. You can generate an `API_KEY` for your search index on the index overview page in Kibana.
 * Learn more about [text-expansion-query](https://www.elastic.co/guide/en/elasticsearch/reference/current/semantic-search-elser.html#text-expansion-query) from the tutorial.
 
-### Enable semantic search for your Search extension on Watson Assistant
-To enable semantic search for your Search extension on Watson Assistant, you just need to specify the following query body in the Search extension settings:
+### Enable semantic search for Agent Knowledge on watsonx Orchestrate
+To enable semantic search for your Agent Knowledge on watsonx Orchestrate, you just need to specify the following query body in your Elasticsearch Knowledge source configuration:
   ```json
   {
     "query":{
@@ -232,6 +232,4 @@ Notes:
 * `$QUERY` is the query variable that contains the user search query by default.
 * `.elser_model_2_linux-x86_64` is an optimized version of the ELSER v2 model and is preferred to use if it is available. Otherwise, use `.elser_model_2` for the regular ELSER v2 model or `.elser_model_1` for ELSER v1.
 
-
-## What's next?
-### [Integrate Elasticsearch with watsonx Orchestrate](README.md#elasticsearch-integration-with-watsonx-orchestrate)
+Learn more about configuring Agent Knowledge from [Elasticsearch integration with Agent Knowledge in watsonx Orchestrate](README.md#elasticsearch-integration-with-agent-knowledge-in-watsonx-orchestrate)

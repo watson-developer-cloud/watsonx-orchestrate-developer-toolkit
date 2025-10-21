@@ -1,12 +1,10 @@
 # How to configure the advanced Elasticsearch settings
-This guide shows how to configure the advanced Elasticsearch settings in watsonx Assistant's Search integration. Specifically, there are two types of settings under `Advanced Elasticsearch settings`: custom filters and query body.
+This guide shows how to configure the advanced Elasticsearch settings for Agent Knowledge in watsonx Orchestrate. Specifically, there are two types of settings under `Advanced Elasticsearch settings`: custom filters and query body.
 
-<img src="assets/advanced_elasticsearch_settings.png" width=518 height=459 />
+<img src="assets/advanced_elasticsearch_settings.png" width=564 height=345 />
 
 ## Table of contents:
 * [How to configure the custom filters](#how-to-configure-the-custom-filters)
-  * [Global filters within the Search integration](#global-filters-within-the-search-integration)
-  * [Local filters within an action step](#local-filters-within-an-action-step)
   * [Filter object examples](#filter-object-examples)
     * [AND](#and)
     * [OR](#or)
@@ -19,29 +17,9 @@ This guide shows how to configure the advanced Elasticsearch settings in watsonx
   * [Hybrid search with combined keyword search and dense vector search](#hybrid-search-with-combined-keyword-search-and-dense-vector-search)
 
 ## How to configure the custom filters
-There are two ways to configure the custom filters: 
-
-### Global filters within the Search integration
-You can configure custom filters for your Elasticsearch integration under `Advanced Elasticsearch settings`. These custom filters will be used as global filters and apply to all user queries. If a custom query body is provided, the `$FILTER` variable needs to be included in the query body to use the custom filters. For example,
+You can configure custom filters for your Elasticsearch knowledge source under `Advanced Elasticsearch settings`. These custom filters will be used as global filters and apply to all user queries. If a custom query body is provided, the `$FILTER` variable needs to be included in the query body to use the custom filters. For example,
 
 <img src="assets/query_body_with_custom_filters.png" width="547" height="638" />
-
-
-### Local filters within an action step
-You can also configure custom filters within an action step when calling the Search integration via `Search for the answer` option. These custom filters will overwrite the global filters defined in the Search integration.
-
-**Session variables or step variables can be used in the custom filters to achieve more dynamic filtering use cases.**
-
-For example,
-
-<img src="assets/use_session_variable_in_custom_filters_for_search.png" />
-
-The above sceenshot shows the settings for `Search for the answer` in an action step where,
-* A custom search query is provided using a step variable, and
-* An array of custom filters are provided using the `Set new filter` option, and
-* A step variable from the second step is used to build a dynamic filter clause.
-
-Note: double quotes are needed for using variables in building the custom filters.
 
 ### Filter object examples
 Using the custom filters, you can achieve advanced filtering use cases for search and conversational search. Here are some examples:

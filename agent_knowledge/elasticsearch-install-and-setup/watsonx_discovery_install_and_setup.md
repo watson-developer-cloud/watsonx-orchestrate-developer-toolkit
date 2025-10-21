@@ -307,4 +307,6 @@ the generated ELSER output:
   ```
 Note: Learn more about [text-expansion-query](https://www.elastic.co/guide/en/elasticsearch/reference/8.11/semantic-search-elser.html#text-expansion-query) from the tutorial.
 
-## Next steps: [Integrate watsonx Discovery with watsonx Orchestrate in CloudPak](README.md#elasticsearch-integration-with-watsonx-orchestrate)
+
+## What's next?
+Now you have successfully created your Elasticsearch index with semantic search enabled, see [Elasticsearch integration with Agent Knowledge in watsonx Orchestrate](README.md#elasticsearch-integration-with-agent-knowledge-in-watsonx-orchestrate) to set up Agent Knowledge using your Elasticsearch index.

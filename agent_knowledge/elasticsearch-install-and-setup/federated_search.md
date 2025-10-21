@@ -123,18 +123,8 @@ curl -X GET "${ES_URL}/*/_search?pretty" -u "${ES_USER}:${ES_PASSWORD}" \
 }'
 ```
 
-## Using these Methods with WatsonX Assistant
+## Using these Methods with Agent Knowledge in watsonx Orchestrate
 
-### Built-in Search Extension
+For similar functionality with watsonx Orchestrate's Agent Knowledge, follow the documentation for [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository). The key difference is specifying your `Elasticsearch index` field using one of the methods described above. For example:
 
-For similar functionality with WatsonX Assistant's built-in search extension, follow the [official Elasticsearch search integration set up documentation](https://cloud.ibm.com/docs/watson-assistant?topic=watson-assistant-search-elasticsearch-add). The key difference is specifying your `Elasticsearch index` field using one of the methods described above. For example:
-
-<img src="./assets/federated_search_official_search_extension.png" width="781" height="442" />
-
-### Custom Extension
-
-When building a custom extension in WatsonX Assistant with the Elasticsearch API, you can leverage these same index name patterns when setting the `index_name` parameter. Follow the guide on [building a custom extension in watsonx Assistant with Elasticsearch API](../../starter-kits/elasticsearch/README.md#build-a-custom-extension-in-watsonx-assistant-with-elasticsearch-api).
-
-Then follow one of the methods listed above when setting the `index_name` parameter to search across multiple indices within your Elasticsearch cluster. For example:
-
-<img src="./assets/federated_search_elasticsearch_custom_extension.png" width="553" height="547" />
+<img src="./assets/federated_search_official_search_extension.png" width="516" height="462" />

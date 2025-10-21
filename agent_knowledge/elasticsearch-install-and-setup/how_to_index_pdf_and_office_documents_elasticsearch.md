@@ -5,7 +5,7 @@
 * [Step 2: Create an Elasticsearch index with specific nested mapping](#step-2-create-an-index-with-a-nested-mapping-for-storing-chunked-text-and-tokens)
 * [Step 3: Create an ELSER ingest pipeline with regex based chunking](#step-3-create-an-elser-ingest-pipeline-with-regex-based-chunking)
 * [Step 4: Run fscrawler app using docker](#step-4-running-the-fscrawler-as-a-docker-service)
-* [Step 5: Connecting Watson Assistant to Elasticsearch for Conversational Search](#step-5-connecting-watson-assistant-to-elasticsearch-for-conversational-search)
+* [Step 5: Connecting to Agent Knowledge in watsonx Orchestrate](#step-5-connecting-to-agent-knowledge-in-watsonx-orchestrate)
 
 ## Pre-requisites:
 
@@ -198,36 +198,11 @@ OPTIONAL: Once all documents are indexed, you can stop the `fscrawler` app or if
 docker-compose down
 ```
 
-Your documents are now available in the index, ready for searching and querying. Follow the steps outlined below to use this index in a RAG based setup with Watson Assistant. 
+Your documents are now available in the index, ready for searching and querying. Follow the steps outlined below to use this index for Agent Knowledge in watsonx Orchestrate. 
 
-### Step 5: Connecting Watson Assistant to Elasticsearch for Conversational Search
+### Step 5: Connecting to Agent Knowledge in watsonx Orchestrate
 
-#### Using custom extensions
-
-Follow the steps outlined in guide to [connect your assistant to elasticsearch and watsonx using custom extensions](../../starter-kits/language-model-conversational-search#example-1-connect-your-assistant-to-elasticsearch-and-watsonx-via-custom-extensions) 
-
-> ⛔️
-> **Caution**  
-> 
-> * After uploading the sample workspace JSON file to your Assistant, make sure to update the session variable `has_inner_hits` to `True`. This will ensure that the appropriate `query_body` will be used for your index. 
-> 
-> * Remember to update the `query_source` session variable as needed when setting up your Elasticsearch extension, to limit the results to only contain certain document source fields. This will limit the length of the query response, 
-	potentially avoiding the 500 error that may be encountered due to length limits. For example, you can set it to the below, if you'd like it to return only the title and text in the results `_source` field:
->   ```
->   ["title", "text"]
->   ```
-> 
-> * Also make sure to set the `es_index_name` to the name of the index you would like to use.
-
-##### Example usage:
-
-Here is an example of how to use the `Search` action for this starter kit conversational search example:
-
-<img src="./assets/elasticsearch-pdfofficedocs-watsonx-example.png" width="300"/>
-
-
-#### Using built-in search integration
-To configure your index in the built-in search integration, you need to follow the [product documentation](https://cloud.ibm.com/docs/watson-assistant?topic=watson-assistant-search-elasticsearch-add) to set up the search integration.  
+To configure your index for Agent Knowledge in watsonx Orchestrate, you need to follow the documentation for [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository).  
 
 Importantly, you need to use the right fields to configure your result content (In this guide, use `title` for Title and `text` for Body). You also need to use the right query body to make the search integration work with your web crawler index. Here is an screenshot of the configuration:  
 

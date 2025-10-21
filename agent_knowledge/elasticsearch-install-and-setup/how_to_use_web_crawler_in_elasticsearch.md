@@ -1,11 +1,11 @@
 # How to set up and use the web crawler in Elasticsearch
-This is a documentation about how to set up and use the web crawler in Elasticsearch and connect it to watsonx Assistant for Conversational Search.
+This is a documentation about how to set up and use the web crawler in Elasticsearch and connect it to Agent Knowledge in watsonx Orchestrate.
 
 ## Tabel of contents:
 * [Step 1: Set up Enterprise Search to enable the web crawler in Elasticsearch](#step-1-set-up-enterprise-search-to-enable-the-web-crawler-in-elasticsearch)
 * [Step 2: Create and configure a web crawler in Elasticsearch](#step-2-create-and-configure-a-web-crawler-in-elasticsearch)
 * [Step 3: Build an ELSER ingest pipeline with a chunking processor](#step-3-build-an-elser-ingest-pipeline-with-a-chunking-processor)
-* [Step 4: Connect a web crawler index to watsonx Assistant for conversational search](#step-4-connect-a-web-crawler-index-to-watsonx-assistant-for-conversational-search)
+* [Step 4: Connect a web crawler index to Agent Knowledge in watsonx Orchestrate](#step-4-connect-a-web-crawler-index-to-agent-knowledge-in-watsonx-orchestrate)
 
 ## Step 1: Set up Enterprise Search to enable the web crawler in Elasticsearch
 Before you start, you will need to install and set up your Elasticsearch cluster,
@@ -469,36 +469,9 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
   is busy indexing and thus might not respond quickly enough to your query. If that happens, you should just wait until the crawl finishes.
   * `.elser_model_2_linux-x86_64` is an optimized version of the ELSER v2 model and is preferred to use if it is available. Otherwise, use `.elser_model_2` for the regular ELSER v2 model or `.elser_model_1` for ELSER v1.
 
-## Step 4: Connect a web crawler index to watsonx Assistant for conversational search 
+## Step 4: Connect a web crawler index to Agent Knowledge in watsonx Orchestrate
 
-### Using custom extensions
-
-* Follow the instructions in [Language Model Conversational Search Starter Kit](../../starter-kits/language-model-conversational-search/README.md#example-1--connect-your-assistant-to-elasticsearch-and-watsonx-via-custom-extensions) 
-  to build custom extensions with Elasticsearch and watsonx.ai to enable Conversational Search in watsonx Assistant.
-
-
-> ⛔️
-> **Caution**  
-> * After uploading the [sample actions JSON file](../../starter-kits/language-model-conversational-search/elasticsearch-watsonx-actions.json) to your Assistant following the instructions [here](../../starter-kits/language-model-conversational-search/README.md#upload-sample-actions), 
-    you need to switch the session variable `has_inner_hits` to `True` so that the right `query_body` will be used for your web crawler index. 
-> 
-> * Remember to update the `query_source` session variable as needed when setting up your Elasticsearch extension, to limit the results to only contain certain document source fields. This will limit the length of the query response, 
-	potentially avoiding the 500 error that may be encountered due to length limits. For example, you can set it to the below, if you'd like it to return only the title and text in the results `_source` field:
->   ```
->   ["title", "text"]
->   ```
->   Otherwise, you may encounter 500 errors due to the response body exceeding the length limit `102400`.
-> 
-> * Also make sure to set the `es_index_name` to the name of the index you would like to use.
-
-<img src="assets/config_query_source_when_use_es_extension.png" width="667" height="620">
-
-#### Example usage:  
-
-<img src="assets/conversation-search-example-with-web-crawler.png" width="285" height="480">
-
-### Using built-in Search integration
-To configure your web crawler index in the built-in search integration, you need to follow the [product documentation](https://cloud.ibm.com/docs/watson-assistant?topic=watson-assistant-search-elasticsearch-add) to set up the search integration first.  
+To configure your web crawler index for Agent Knowledge in watsonx Orchestrate, you need to follow the documentation for [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository).  
 
 Importantly, you need to use the right fields to configure your result content (In this guide, use `title` for Title and `text` for Body). You also need to use the right query body to make the search integration work with your web crawler index. Here is an screenshot of the configuration:  
 
