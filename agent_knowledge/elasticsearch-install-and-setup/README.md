@@ -9,10 +9,10 @@ This directory contains documentation for installing and setting up Elasticsearc
 
 ## Elasticsearch integration with Agent Knowledge in watsonx Orchestrate 
 ### Option 1: Add Knowledge to your agents in the Agent Builder UI
-See [watsonx Orchestrate Agent Builder doc](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-adding-knowledge) for more details.
+See [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository) in watsonx Orchestrate documentation for more details.
 
 ### Option 2: Create Knowledge bases via watsonx Orchestrate ADK (Agent Development Kit)
-See [ADK doc](https://developer.watson-orchestrate.ibm.com/knowledge_base/overview) for more details.
+See [Creating external knowledge bases with Elasticsearch](https://developer.watson-orchestrate.ibm.com/knowledge_base/build_kb#elasticsearch) in ADK documentation for more details.
 
 ### Configure the Advanced Elasticsearch Settings
 There are two settings under `Advanced Elasticsearch Settings` for using custom query body and custom filters to achieve advanced search use cases. See the guide [How to configure Advanced Elasticsearch Settings](./how_to_configure_advanced_elasticsearch_settings.md) for more details. 
