@@ -154,27 +154,17 @@ and restart again by attempting with smaller number of documents at a time.
 If you'd like to update the number of documents to send per request in the Elasticsearch API, you can update the 
 `chunk_size` parameter in the call to `helpers.streaming_bulk` method in the final cell of the notebook.
 
-Your documents are now available in the index, ready for searching and querying. Follow the steps outlined below to use this index in a RAG based setup with Watson Assistant. 
+Your documents are now available in the index, ready for searching and querying. Follow the steps outlined below to use this index for Agent Knowledge in watsonx Orchestrate. 
 
 **NOTE**: There are some example documents available [here](../assets/sample_pdf_docs), if you would like to test the setup.
 
-### Step 5: Connecting Watson Assistant to Elasticsearch for Conversational Search
+### Step 5: Connecting to Agent Knowledge in watsonx Orchestrate
 
-There are two options to connect your elasticsearch instance to your assistant for conversational search:
+Follow instructions in [Elasticsearch integration with Agent Knowledge in watsonx Orchestrate](README.md#elasticsearch-integration-with-agent-knowledge-in-watsonx-orchestrate) to set up Agent Knowledge using your Elasticsearch index.
 
-
-
-#### Step 5a. Using the built-in watsonX Assistant Conversational Search
-
-Follow instructions in the [elasticsearch integration documentation](https://cloud.ibm.com/docs/watson-assistant?topic=watson-assistant-search-elasticsearch-add#setup-elasticsearch) to configure your elasticsearch index for conversational search
-
-**NOTES**
-
-1. In `Step 3` , use `title` for the **Title** field and `text` for the **Text** field
-2. In `Step 4` , configure the custom query body using the snippet below: 
-
-	```
-	{
+Here is an example Elasticsearch query body:
+```
+{
 	  "query": {
 	    "text_expansion": {
 	      "ml.tokens": {
@@ -183,31 +173,5 @@ Follow instructions in the [elasticsearch integration documentation](https://clo
 	      }
 	    }
 	  }
-	}
-	```
-
-3. Remember to enable the **conversational search** toggle to `on` to activate it
-
-<img src="../assets/elasticsearch-integration.png" width="400"/>
-
-
-#### Step 5b. Using custom extensions
-
-Follow the steps outlined in guide to [connect your assistant to elasticsearch and watsonx using custom extensions](../../../starter-kits/language-model-conversational-search#example-1-connect-your-assistant-to-elasticsearch-and-watsonx-via-custom-extensions) 
-
-> ⛔️
-> **Caution**  
-> 
-> * Remember to update the `query_source` session variable as needed when setting up your Elasticsearch extension, to limit the results to only contain certain document source fields. This will limit the length of the query response, 
-	potentially avoiding the 500 error that may be encountered due to length limits. For example, you can set it to the below, if you'd like it to return only the title and text in the results `_source` field:
->   ```
->   ["title", "text"]
->   ```
-> 
-> * Also make sure to set the `es_index_name` to the name of the index you would like to use.
-
-#### Example usage:
-
-Here is an example of how to use the `Search` action for this starter kit conversational search example:
-
-<img src="../assets/conversational_search_example_python_doc_ingestion.png" width="300"/>
+}
+```

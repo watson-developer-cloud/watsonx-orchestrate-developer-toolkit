@@ -1,5 +1,5 @@
-# How to set up Elasticsearch from IBM Cloud and integrate it with Watson Assistant
-This is a documentation about how to set up Elasticsearch from IBM Cloud and create Watson Assistant search extension using Elasticsearch index.
+# How to set up Elasticsearch from IBM Cloud and integrate it with Agent Knowledge in watsonx Orchestrate
+This is a documentation about how to set up Elasticsearch from IBM Cloud and create Agent Knowledge in watsonx Orchestrate using Elasticsearch index.
 
 ## Table of contents:
 * [Step 1: Provision an Elasticsearch instance on IBM Cloud](#step-1-provision-an-elasticsearch-instance-on-ibm-cloud)
@@ -14,7 +14,7 @@ This is a documentation about how to set up Elasticsearch from IBM Cloud and cre
   **A platinum plan with at least 4GB RAM is required in order to use the advanced ML features,
   such as [Elastic Learned Sparse EncodeR (ELSER)](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html)**
 * Create a service credentials from the left-side menu and find the `hostname`, `port`, `username` and `password`.
-  The credentials will be used to connect to Kibana and Watson Assistant at next steps. You can use admin userid and password as well.
+  The credentials will be used to connect to Kibana and watsonx Orchestrate at next steps. You can use admin userid and password as well.
   Please refer to [this doc](https://cloud.ibm.com/docs/databases-for-elasticsearch?topic=databases-for-elasticsearch-user-management&interface=ui#user-management-elasticsearch-ibm-superuser) to learn more about different user roles.
 
 

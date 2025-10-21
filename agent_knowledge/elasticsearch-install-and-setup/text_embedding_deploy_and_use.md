@@ -1,10 +1,6 @@
 # How to set up and use 3rd-party text embeddings for dense vector search in Elasticsearch
 This guide demonstrates how to deploy and use a text embedding model in Elasticsearch. The model will generate vector representations for text, enabling vector similarity (k-nearest neighbours) search.
 
-This is part of starter kits for setting up a custom Elasticsearch extension for conversational search in IBM watsonx Assistant. You can refer to the guides below for more context:
-- [Elasticsearch custom extension starter kit](../../starter-kits/elasticsearch/README.md)
-- [Conversational search starter kit](../../starter-kits/language-model-conversational-search/README.md)
-
 ## Set up Elasticsearch
 
 ### Elasticsearch from IBM Cloud
@@ -229,3 +225,24 @@ curl -X GET "${ES_URL}/${ES_EMBEDDING_INDEX_NAME}/_search" \
 
 ## What's next?
 Now that you've successfully deployed your text embedding model in Elasticsearch, see [Elasticsearch integration with Agent Knowledge in watsonx Orchestrate](README.md#elasticsearch-integration-with-agent-knowledge-in-watsonx-orchestrate) to set up Agent Knowledge using your Elasticsearch index.
+
+Here is an example Elasticsearch query body:
+```
+{
+  "knn": {
+    "field": "text_embedding.predicted_value",
+    "query_vector_builder": {
+      "text_embedding": {
+        "model_id": "intfloat__multilingual-e5-small",
+        "model_text": "$QUERY"
+      }
+    },
+    "k": 10,
+    "num_candidates": 100
+  },
+  "_source": [
+    "id",
+    "text"
+  ]
+}
+```
