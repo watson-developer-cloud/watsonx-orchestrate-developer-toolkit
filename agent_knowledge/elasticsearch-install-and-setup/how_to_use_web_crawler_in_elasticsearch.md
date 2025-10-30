@@ -473,7 +473,7 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
 
 To configure your web crawler index for Agent Knowledge in watsonx Orchestrate, you need to follow the documentation for [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository).  
 
-Importantly, you need to use the right fields to configure your result content (In this guide, use `title` for Title and `text` for Body). You also need to use the right query body to make the search integration work with your web crawler index. Here is an screenshot of the configuration:  
+Importantly, you need to use the right fields to configure your result content (In this guide, use `title` for Title and `text` for Body). You also need to use the right query body to make Knowledge work with your web crawler index. Here is an screenshot of the configuration:
 
 <img src="assets/use_nested_query_in_search_integration_settings.png" width="512" height="641">
 
