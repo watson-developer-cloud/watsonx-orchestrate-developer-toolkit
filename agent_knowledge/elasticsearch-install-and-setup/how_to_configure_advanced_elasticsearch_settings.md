@@ -17,12 +17,12 @@ This guide shows how to configure the advanced Elasticsearch settings for Agent 
   * [Hybrid search with combined keyword search and dense vector search](#hybrid-search-with-combined-keyword-search-and-dense-vector-search)
 
 ## How to configure the custom filters
-You can configure custom filters for your Elasticsearch knowledge source under `Advanced Elasticsearch settings`. These custom filters will be used as global filters and apply to all user queries. If a custom query body is provided, the `$FILTER` variable needs to be included in the query body to use the custom filters. For example,
+You can configure custom filters for your Elasticsearch knowledge source under `Advanced Elasticsearch settings`. These custom filters will be used as global filters and apply to all user queries that trigger Knowledge. If a custom query body is provided, the `$FILTER` variable needs to be included in the query body to use the custom filters. For example,
 
 <img src="assets/query_body_with_custom_filters.png" width="547" height="638" />
 
 ### Filter object examples
-Using the custom filters, you can achieve advanced filtering use cases for search and conversational search. Here are some examples:
+Using the custom filters, you can achieve advanced filtering use cases. Here are some examples:
 
 **Note: The below examples assume `title`, `text`, and `id` fields are available in your Elasticsearch index. Among them, `title` and `text` are text type fields, while `id` is a keyword type field.**
 
