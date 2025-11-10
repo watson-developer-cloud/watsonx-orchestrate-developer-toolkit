@@ -9,6 +9,8 @@ Before starting the ingestion process, ensure you have access to both Astra DB a
 2. Get access to LangFlow
     * To install the desktop version: [Install LangFlow Desktop](https://www.langflow.org/desktop)
     * To use the managed version: [Sign up for managed LangFlow](https://astra.datastax.com/langflow)
+    * To use the LangFlow editor in ADK: [Use LangFlow editor in ADK](https://developer.watson-orchestrate.ibm.com/langflow/building)
+    
 
 ## Table of contents
 * [Step 1: Prepare Astra DB and collect connection information](#step-1-prepare-astra-db-and-collect-connection-information)
