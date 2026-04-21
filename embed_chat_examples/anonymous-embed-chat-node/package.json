@@ -1,0 +1,26 @@
+{
+  "name": "wxo-secure-embed-chat",
+  "version": "1.0.0",
+  "engines": {
+    "node": "^16.15.1"
+  },
+  "scripts": {
+    "start": "node ./server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "~1.4.4",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "http-errors": "~1.6.3",
+    "jsonwebtoken": "^9.0.0",
+    "node-rsa": "^1.1.1",
+    "uuid": "^11.1.0"
+  },
+  "description": "**For a full walk through of how this code works, please visit the [security architecture documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture) in the IBM watsonx Orchestrate developer documentation.**",
+  "main": "server.js",
+  "devDependencies": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}

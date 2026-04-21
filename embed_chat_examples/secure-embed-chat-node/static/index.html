@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>watsonx Orchestrate - Secure AI Chat Demo</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <script>
+    /**
+     * This is the function that is called when a new user id is needed.
+     */
+    function getUserId() {
+      let embed_user_id = sessionStorage.embed_user_id;
+      if (!embed_user_id) {
+        embed_user_id = Math.trunc(Math.random() * 1000000);
+        sessionStorage.embed_user_id = embed_user_id;
+      }
+      return embed_user_id;
+    }
+
+    /**
+    * Fetches a new JWT identity token from the backend.
+    * In production, this should call your secure server endpoint.
+    */
+    async function getIdentityToken() {
+      try {
+        const userId = getUserId();
+        const response = await fetch(`http://localhost:5555/createJWT?user_id=${userId}`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          console.error(`[wxO Secure Embed] Failed to fetch JWT: ${response.status} ${response.statusText}`);
+          return;
+        }
+
+        const token = await response.text();
+
+        if (!token) {
+          console.error("[wxO Secure Embed] Empty JWT token received.");
+          return;
+        }
+
+        window.wxOConfiguration.token = token;
+        console.log("[wxO Secure Embed] Token fetched successfully.");
+      } catch (error) {
+        console.error("[wxO Secure Embed] Error fetching identity token:", error);
+      }
+    }
+
+    /**
+     * wxO Configuration object
+     * Replace these values with your actual agent configuration from the watsonx Orchestrate console.
+     * These are dummy/example values for demonstration purposes only.
+     */
+    window.wxOConfiguration = {
+      // Orchestration ID from your agent's embed code
+      orchestrationID: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+      
+      // Host URL for your watsonx Orchestrate instance
+      hostURL: "https://your-instance.watson-orchestrate.ibm.com",
+      
+      // ID of the HTML element where the chat will be mounted
+      rootElementID: "root",
+      
+      // Chat-specific options
+      chatOptions: {
+        // Your agent's unique identifier
+        agentId: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+        
+        // Your agent's environment identifier
+        agentEnvironmentId: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+      }
+    };
+
+    getIdentityToken().then(() => {
+      const script = document.createElement("script");
+      script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+      script.addEventListener("load", function () {
+        wxoLoader.init();
+      });
+      document.head.appendChild(script);
+    });
+  </script>
+</head>
+
+<body>
+  <!-- Mount node for the chat (fullscreen-overlay/direct render). -->
+  <div id="root"></div>
+
+  <!-- Animated Background -->
+  <div class="animated-bg">
+    <div class="gradient-orb orb-1"></div>
+    <div class="gradient-orb orb-2"></div>
+    <div class="gradient-orb orb-3"></div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <i class="fas fa-robot"></i>
+        <span>watsonx Orchestrate</span>
+      </div>
+      <div class="nav-links">
+        <a href="#home" class="nav-link active">Home</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#demo" class="nav-link">Demo</a>
+        <a href="#contact" class="nav-link">Contact</a>
+      </div>
+      <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="home" class="hero">
+    <div class="hero-content">
+      <div class="hero-badge">
+        <i class="fas fa-shield-alt"></i>
+        <span>Secure AI Integration</span>
+      </div>
+      <h1 class="hero-title">
+        Experience the Future of
+        <span class="gradient-text">AI-Powered Conversations</span>
+      </h1>
+      <p class="hero-subtitle">
+        Seamlessly integrate IBM watsonx Orchestrate into your applications with enterprise-grade security and intelligent automation.
+      </p>
+      <div class="hero-buttons">
+        <button class="btn btn-primary" onclick="scrollToSection('demo')">
+          <i class="fas fa-play-circle"></i>
+          Try Demo
+        </button>
+        <button class="btn btn-secondary" onclick="scrollToSection('features')">
+          <i class="fas fa-info-circle"></i>
+          Learn More
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-number">99.9%</div>
+          <div class="stat-label">Uptime</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">256-bit</div>
+          <div class="stat-label">Encryption</div>
+        </div>
+        <div class="stat">
+          <div class="stat-number">< 100ms</div>
+          <div class="stat-label">Response Time</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="features">
+    <div class="section-header">
+      <h2 class="section-title">Powerful Features</h2>
+      <p class="section-subtitle">Everything you need for secure AI integration</p>
+    </div>
+    
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-lock"></i>
+        </div>
+        <h3>Enterprise Security</h3>
+        <p>JWT-based authentication with RSA encryption ensures your data remains protected at all times.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Token-based authentication</li>
+          <li><i class="fas fa-check"></i> Secure session management</li>
+          <li><i class="fas fa-check"></i> End-to-end encryption</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <h3>Lightning Fast</h3>
+        <p>Optimized performance with minimal latency for real-time conversational experiences.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Sub-100ms response times</li>
+          <li><i class="fas fa-check"></i> Efficient token management</li>
+          <li><i class="fas fa-check"></i> Optimized payload delivery</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-puzzle-piece"></i>
+        </div>
+        <h3>Easy Integration</h3>
+        <p>Simple API with comprehensive documentation makes integration a breeze.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Single-line initialization</li>
+          <li><i class="fas fa-check"></i> Flexible configuration</li>
+          <li><i class="fas fa-check"></i> Framework agnostic</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>AI-Powered</h3>
+        <p>Leverage IBM's advanced AI capabilities for intelligent automation and insights.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Natural language processing</li>
+          <li><i class="fas fa-check"></i> Context-aware responses</li>
+          <li><i class="fas fa-check"></i> Multi-turn conversations</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-mobile-alt"></i>
+        </div>
+        <h3>Responsive Design</h3>
+        <p>Works seamlessly across all devices and screen sizes for consistent user experience.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> Mobile-first approach</li>
+          <li><i class="fas fa-check"></i> Adaptive layouts</li>
+          <li><i class="fas fa-check"></i> Touch-optimized</li>
+        </ul>
+      </div>
+
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>Analytics Ready</h3>
+        <p>Built-in tracking and monitoring capabilities for actionable insights.</p>
+        <ul class="feature-list">
+          <li><i class="fas fa-check"></i> User interaction tracking</li>
+          <li><i class="fas fa-check"></i> Performance metrics</li>
+          <li><i class="fas fa-check"></i> Custom event logging</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Demo Section -->
+  <section id="demo" class="demo">
+    <div class="section-header">
+      <h2 class="section-title">See It In Action</h2>
+      <p class="section-subtitle">Experience the power of secure AI chat integration</p>
+    </div>
+    
+    <div class="demo-container">
+      <div class="demo-info">
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="fas fa-key"></i>
+          </div>
+          <div class="info-content">
+            <h4>Secure Authentication</h4>
+            <p>Each session is protected with a unique JWT token, ensuring secure communication between your application and watsonx Orchestrate.</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="fas fa-user-shield"></i>
+          </div>
+          <div class="info-content">
+            <h4>User Identity Management</h4>
+            <p>Automatic user ID generation and session persistence provide a seamless experience across page reloads.</p>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-icon">
+            <i class="fas fa-sync-alt"></i>
+          </div>
+          <div class="info-content">
+            <h4>Token Refresh</h4>
+            <p>Intelligent token management prevents duplicate initializations and ensures optimal performance.</p>
+          </div>
+        </div>
+
+        <div class="code-snippet">
+          <div class="code-header">
+            <span><i class="fas fa-code"></i> Quick Setup</span>
+            <button class="copy-btn" onclick="copyCode()">
+              <i class="fas fa-copy"></i> Copy
+            </button>
+          </div>
+          <pre><code id="code-block">// Initialize watsonx Orchestrate
+window.wxOConfiguration = {
+  orchestrationID: "your-id",
+  hostURL: "your-host",
+  rootElementID: "root",
+  chatOptions: {
+    agentId: "your-agent-id",
+    agentEnvironmentId: "your-env-id"
+  }
+};</code></pre>
+        </div>
+      </div>
+
+      <div class="demo-visual">
+        <div class="demo-window">
+          <div class="window-header">
+            <div class="window-dots">
+              <span class="dot red"></span>
+              <span class="dot yellow"></span>
+              <span class="dot green"></span>
+            </div>
+            <span class="window-title">Live Demo</span>
+          </div>
+          <div class="window-content">
+            <div class="chat-preview">
+              <div class="chat-message bot">
+                <div class="message-avatar">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-bubble">
+                  Hello! I'm your AI assistant powered by watsonx Orchestrate. How can I help you today?
+                </div>
+              </div>
+              <div class="chat-message user">
+                <div class="message-bubble">
+                  Tell me about secure integration
+                </div>
+                <div class="message-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+              </div>
+              <div class="chat-message bot">
+                <div class="message-avatar">
+                  <i class="fas fa-robot"></i>
+                </div>
+                <div class="message-bubble">
+                  Our secure integration uses JWT authentication with RSA encryption, ensuring enterprise-grade security for all your conversations.
+                </div>
+              </div>
+              <div class="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="contact">
+    <div class="section-header">
+      <h2 class="section-title">Get Started Today</h2>
+      <p class="section-subtitle">Ready to integrate AI into your application?</p>
+    </div>
+    
+    <div class="contact-container">
+      <div class="contact-info">
+        <h3>Why Choose watsonx Orchestrate?</h3>
+        <p>Join thousands of enterprises leveraging IBM's AI technology to transform their customer experiences.</p>
+        
+        <div class="contact-features">
+          <div class="contact-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>24/7 Enterprise Support</span>
+          </div>
+          <div class="contact-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>99.9% SLA Guarantee</span>
+          </div>
+          <div class="contact-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Comprehensive Documentation</span>
+          </div>
+          <div class="contact-feature">
+            <i class="fas fa-check-circle"></i>
+            <span>Regular Security Updates</span>
+          </div>
+        </div>
+
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-github"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-linkedin"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-youtube"></i></a>
+        </div>
+      </div>
+
+      <div class="contact-form">
+        <form onsubmit="handleSubmit(event)">
+          <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" placeholder="John Doe" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="john@company.com" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="company">Company</label>
+            <input type="text" id="company" placeholder="Your Company">
+          </div>
+          
+          <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" rows="4" placeholder="Tell us about your project..." required></textarea>
+          </div>
+          
+          <button type="submit" class="btn btn-primary btn-full">
+            <i class="fas fa-paper-plane"></i>
+            Send Message
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h4><i class="fas fa-robot"></i> watsonx Orchestrate</h4>
+        <p>Enterprise-grade AI integration platform powered by IBM Watson.</p>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Tutorials</a></li>
+          <li><a href="#">Support</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Service</a></li>
+          <li><a href="#">Security</a></li>
+          <li><a href="#">Compliance</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>&copy; 2026 IBM watsonx Orchestrate. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scrolling
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // Mobile menu toggle
+    function toggleMobileMenu() {
+      const navLinks = document.querySelector('.nav-links');
+      navLinks.classList.toggle('active');
+    }
+
+    // Copy code snippet
+    function copyCode() {
+      const code = document.getElementById('code-block').textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 2000);
+      });
+    }
+
+    // Form submission
+    function handleSubmit(event) {
+      event.preventDefault();
+      alert('Thank you for your interest! This is a demo form.');
+      event.target.reset();
+    }
+
+    // Active nav link on scroll
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section[id]');
+      const navLinks = document.querySelectorAll('.nav-link');
+      
+      let current = '';
+      sections.forEach(section => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (scrollY >= sectionTop - 200) {
+          current = section.getAttribute('id');
+        }
+      });
+
+      navLinks.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === `#${current}`) {
+          link.classList.add('active');
+        }
+      });
+    });
+
+    // Intersection Observer for animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -100px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.feature-card, .info-card, .demo-window').forEach(el => {
+      observer.observe(el);
+    });
+  </script>
+</body>
+
+<style>
+  :root {
+    --primary-color: #0f62fe;
+    --secondary-color: #8a3ffc;
+    --accent-color: #33b1ff;
+    --success-color: #24a148;
+    --dark-bg: #161616;
+    --dark-surface: #262626;
+    --light-bg: #ffffff;
+    --light-surface: #f4f4f4;
+    --text-primary: #161616;
+    --text-secondary: #525252;
+    --text-light: #ffffff;
+    --border-color: #e0e0e0;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.6;
+    color: var(--text-primary);
+    background: var(--light-bg);
+    overflow-x: hidden;
+  }
+
+  .animated-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: float 20s infinite ease-in-out;
+  }
+
+  .orb-1 {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    top: -250px;
+    left: -250px;
+  }
+
+  .orb-2 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    bottom: -200px;
+    right: -200px;
+    animation-delay: 7s;
+  }
+
+  .orb-3 {
+    width: 350px;
+    height: 350px;
+    background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: 14s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(100px, -100px) scale(1.1); }
+    66% { transform: translate(-100px, 100px) scale(0.9); }
+  }
+
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-sm);
+    z-index: 1000;
+  }
+
+  .nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+  }
+
+  .nav-logo i {
+    font-size: 2rem;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+  }
+
+  .nav-link {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: var(--transition);
+  }
+
+  .nav-link:hover,
+  .nav-link.active {
+    color: var(--primary-color);
+    background: rgba(15, 98, 254, 0.1);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-primary);
+    cursor: pointer;
+  }
+
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8rem 2rem 4rem;
+    text-align: center;
+  }
+
+  .hero-content {
+    max-width: 1000px;
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.5rem;
+    background: rgba(15, 98, 254, 0.1);
+    border: 1px solid rgba(15, 98, 254, 0.2);
+    border-radius: 50px;
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-bottom: 2rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 3rem;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 4rem;
+  }
+
+  .btn {
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary {
+    background: var(--primary-color);
+    color: var(--text-light);
+    box-shadow: 0 4px 16px rgba(15, 98, 254, 0.3);
+  }
+
+  .btn-primary:hover {
+    background: #0353e9;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(15, 98, 254, 0.4);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+  }
+
+  .btn-secondary:hover {
+    background: var(--primary-color);
+    color: var(--text-light);
+    transform: translateY(-2px);
+  }
+
+  .btn-full {
+    width: 100%;
+  }
+
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  section {
+    padding: 6rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .section-subtitle {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+
+  .feature-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  .feature-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .feature-card:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .feature-icon {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    margin-bottom: 1.5rem;
+  }
+
+  .feature-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature-card p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.7;
+  }
+
+  .feature-list {
+    list-style: none;
+  }
+
+  .feature-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    color: var(--text-secondary);
+  }
+
+  .feature-list i {
+    color: var(--success-color);
+    font-size: 1.1rem;
+  }
+
+  .demo {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+  }
+
+  .demo-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .info-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateX(-30px);
+    transition: var(--transition);
+  }
+
+  .info-card.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .info-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .info-content h4 {
+    margin-bottom: 0.5rem;
+  }
+
+  .info-content p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .code-snippet {
+    background: var(--dark-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 2rem;
+  }
+
+  .code-header {
+    background: var(--dark-surface);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-light);
+  }
+
+  .copy-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.9rem;
+  }
+
+  .copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  pre {
+    margin: 0;
+    padding: 1.5rem;
+    overflow-x: auto;
+  }
+
+  code {
+    color: #a8b9cc;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .demo-window {
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: var(--transition);
+  }
+
+  .demo-window.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .window-header {
+    background: var(--light-surface);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .window-dots {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .dot.red { background: #ff5f56; }
+  .dot.yellow { background: #ffbd2e; }
+  .dot.green { background: #27c93f; }
+
+  .window-title {
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .window-content {
+    padding: 2rem;
+    min-height: 400px;
+  }
+
+  .chat-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .chat-message {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .chat-message.user {
+    flex-direction: row-reverse;
+  }
+
+  .message-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .chat-message.bot .message-avatar {
+    background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+    color: white;
+  }
+
+  .chat-message.user .message-avatar {
+    background: var(--light-surface);
+    color: var(--text-primary);
+  }
+
+  .message-bubble {
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    max-width: 80%;
+    line-height: 1.6;
+  }
+
+  .chat-message.bot .message-bubble {
+    background: var(--light-surface);
+    border-bottom-left-radius: 4px;
+  }
+
+  .chat-message.user .message-bubble {
+    background: var(--primary-color);
+    color: white;
+    border-bottom-right-radius: 4px;
+  }
+
+  .typing-indicator {
+    display: flex;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--light-surface);
+    border-radius: 16px;
+    width: fit-content;
+    margin-left: 56px;
+  }
+
+  .typing-indicator span {
+    width: 8px;
+    height: 8px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+  }
+
+  .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+  .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+    30% { transform: translateY(-10px); opacity: 1; }
+  }
+
+  .contact-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .contact-info h3 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .contact-info > p {
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    line-height: 1.7;
+  }
+
+  .contact-features {
+    margin-bottom: 2rem;
+  }
+
+  .contact-feature {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+
+  .contact-feature i {
+    color: var(--success-color);
+    font-size: 1.25rem;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .social-link {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: var(--light-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    font-size: 1.25rem;
+    transition: var(--transition);
+    text-decoration: none;
+  }
+
+  .social-link:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-4px);
+  }
+
+  .contact-form {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: inherit;
+    transition: var(--transition);
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(15, 98, 254, 0.1);
+  }
+
+  .form-group textarea {
+    resize: vertical;
+  }
+
+  .footer {
+    background: var(--dark-bg);
+    color: var(--text-light);
+    padding: 4rem 2rem 2rem;
+  }
+
+  .footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .footer-section h4 {
+    margin-bottom: 1.5rem;
+    font-size: 1.25rem;
+  }
+
+  .footer-section p {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.7;
+  }
+
+  .footer-section ul {
+    list-style: none;
+  }
+
+  .footer-section ul li {
+    margin-bottom: 0.75rem;
+  }
+
+  .footer-section ul li a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+
+  .footer-section ul li a:hover {
+    color: var(--accent-color);
+  }
+
+  .footer-bottom {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    text-align: center;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .demo-container,
+    .contact-container {
+      grid-template-columns: 1fr;
+    }
+
+    .demo-visual {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .nav-links {
+      position: fixed;
+      top: 70px;
+      left: 0;
+      right: 0;
+      background: white;
+      flex-direction: column;
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      transform: translateY(-100%);
+      opacity: 0;
+      transition: var(--transition);
+      pointer-events: none;
+    }
+
+    .nav-links.active {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .mobile-menu-btn {
+      display: block;
+    }
+
+    .hero {
+      padding: 6rem 1rem 3rem;
+    }
+
+    .hero-buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .features-grid {
+      grid-template-columns: 1fr;
+    }
+
+    section {
+      padding: 4rem 1rem;
+    }
+
+    .hero-stats {
+      gap: 2rem;
+    }
+
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.75rem;
+    }
+
+    .feature-card,
+    .contact-form {
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+</html>

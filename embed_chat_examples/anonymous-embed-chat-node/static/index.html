@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>wxO embed example – anonymous (no authentication)</title>
+
+  <script>
+    /**
+     * wxO Configuration object
+     * Replace these values with your actual agent configuration from the watsonx Orchestrate console.
+     * These are placeholder values for demonstration purposes only.
+     * 
+     * For complete documentation, see:
+     * https://developer.watson-orchestrate.ibm.com/webchat/get_started
+     */
+    window.wxOConfiguration = {
+      // Orchestration ID from your agent's embed code
+      orchestrationID: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX_XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+      
+      // Host URL for your watsonx Orchestrate instance
+      hostURL: "https://your-instance.watson-orchestrate.ibm.com",
+      
+      // ID of the HTML element where the chat will be mounted
+      rootElementID: "root",
+      
+      // Chat-specific options
+      chatOptions: {
+        // Your agent's unique identifier
+        agentId: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+        
+        // Your agent's environment identifier
+        agentEnvironmentId: "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+      }
+    };
+
+    // Load the wxO chat script
+    // Note: This is an anonymous embed without JWT authentication
+    setTimeout(function () {
+      const script = document.createElement("script");
+      script.src = `${window.wxOConfiguration.hostURL}/wxochat/wxoLoader.js?embed=true`;
+      script.addEventListener("load", function () {
+        wxoLoader.init();
+      });
+      document.head.appendChild(script);
+    }, 0);
+  </script>
+</head>
+
+<body>
+  <!-- Mount node for the chat (fullscreen-overlay/direct render). -->
+  <div id="root"></div>
+
+  <!-- Simple demo page content. -->
+  <header>
+    <h1>Welcome to My Company</h1>
+  </header>
+
+  <nav>
+    <a href="#">Home</a>
+    <a href="#">Services</a>
+    <a href="#">About</a>
+    <a href="#">Contact</a>
+  </nav>
+
+  <section>
+    <h2>About Us</h2>
+    <p>
+      We provide integrations with IBM watsonx Orchestrate.
+      This page is a demo sample of wxO anonymous embed chat (no authentication required).
+    </p>
+    <p>
+      <strong>Note:</strong> This is an anonymous embed example. For production environments with user authentication,
+      see the <a href="../secure-embed-chat">secure-embed-chat example</a>.
+    </p>
+  </section>
+
+  <section>
+    <div class="container">
+      <div class="box">
+        <h3>Our Services</h3>
+        <p>Consulting and integration for embedded agent chat.</p>
+      </div>
+      <div class="box">
+        <h3>Why Choose Us?</h3>
+        <p>Simple, straightforward implementations for your needs.</p>
+      </div>
+      <div class="box">
+        <h3>Contact Us</h3>
+        <p>Talk to us to deploy wxO chat in your app.</p>
+      </div>
+    </div>
+  </section>
+</body>
+
+<style>
+  /* Basic, readable styling. Header uses IBM Blue for quick recognition. */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  header {
+    background-color: #0f62fe;
+    /* IBM Blue */
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+  }
+
+  nav {
+    display: flex;
+    justify-content: center;
+    background-color: #333;
+  }
+
+  nav a {
+    color: white;
+    padding: 14px 20px;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  nav a:hover {
+    background-color: #ddd;
+    color: black;
+  }
+
+  section {
+    padding: 2rem;
+  }
+
+  .container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .box {
+    flex: 1 1 300px;
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+
+  .box h3 {
+    color: #0f62fe;
+    /* IBM Blue */
+  }
+
+  footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    nav {
+      flex-direction: column;
+    }
+  }
+</style>
+
+</html>
