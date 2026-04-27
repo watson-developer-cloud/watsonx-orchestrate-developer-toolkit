@@ -93,12 +93,18 @@ This example is configured to use placeholder values. To use your own agent:
 
 1. **Configure your agent**:
    - Open [`static/index.html`](static/index.html)
-   - Replace the placeholder values in `wxOConfiguration`:
+   - Replace the entire `wxOConfiguration` object with the configuration from your embed script
+   - You can find the embed script in your agent's settings in the watsonx Orchestrate console
+   - The `wxOConfiguration` should include:
      - `orchestrationID` - Your orchestration ID from the embed code
      - `hostURL` - Your watsonx Orchestrate instance URL
      - `agentId` - Your agent's unique identifier
-     - `agentEnvironmentId` - Your agent's environment identifier
-   - You can find these values in your agent's embed code from the watsonx Orchestrate console.
+     - `agentEnvironmentId` - Your agent's environment identifier (optional)
+   
+   **Note about `agentEnvironmentId`:**
+   - This field is **optional** and **not required** for draft environments
+   - Only include `agentEnvironmentId` when connecting to a **live environment**
+   - For draft environments, you can omit this field from the configuration
 
 2. **Disable security in watsonx Orchestrate** (if enabled):
    - Open the Security settings for your wxO embed chat in the watsonx Orchestrate console

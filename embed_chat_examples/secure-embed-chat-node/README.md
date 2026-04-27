@@ -8,14 +8,36 @@
 
 ## Overview
 
-This example demonstrates how to implement **secure embed chat** with IBM watsonx Orchestrate using JWT-based authentication and RSA public-key cryptography. Security for embedded chat ensures that:
+This example demonstrates a **secure embed chat** integration for IBM watsonx Orchestrate using JWT-based authentication and RSA public-key cryptography.
+
+When security is enabled for embedded chat:
 
 - **Identity is established** through authenticated requests
-- **Access is controlled** via signed JSON Web Tokens (JWT)
-- **Context is trusted** through encrypted payloads
-- **Operations are safeguarded** with proper key management
+- **Access is controlled** with signed JSON Web Tokens (JWT)
+- **Context can be trusted** through encrypted payloads
+- **Operations are protected** with proper key management
 
-If you are new to developing with wxO embed chat, please start with the [agent integration documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents).
+If you are new to developing with wxO embed chat, start with the [agent integration documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents).
+
+### ✅ When to Use This Example
+
+Use this example when:
+
+- You're deploying to production with authenticated users
+- Your instance accesses sensitive data or protected systems
+- You need user-specific context or audit trails
+- You're implementing SSO or On-Behalf-Of (OBO) flow
+- Your application must comply with organizational or regulatory security requirements
+
+### ⚠️ Do Not Use Anonymous Mode If
+
+You should **not** use anonymous embed chat when:
+
+- The agent can access sensitive information
+- Tools are configured with credentials to protected systems
+- You need to know which user performed an action
+- You must pass authenticated identity or user-specific context
+- You require strong access controls or compliance alignment
 
 ## Security Model
 
@@ -53,14 +75,14 @@ Voice interactions use the same security model:
 
 ## What This Example Demonstrates
 
-- How to generate RSA key pairs (Client + IBM) for JWT authentication
-- How to use a Node.js Express server to create signed JWTs
-- How to fetch and use JWTs to authenticate users with wxO embed chat
-- How to encrypt sensitive user payload using IBM's public key
-- How to properly configure JWT claims with supported fields only
-- How to manage token lifecycle and refresh tokens during active sessions
+- Secure wxO embed chat integration with JWT authentication
+- A Node.js Express backend that generates signed JWTs
+- RSA key usage for signature verification and optional payload encryption
+- Authenticated user identity via the `sub` claim
+- Context passing and supported JWT fields
+- Token lifecycle management for active sessions
 
-The server code for generating JWTs can be found in [`routes/createJWT.js`](routes/createJWT.js). The wxO embed chat code that uses the JWT can be found in [`static/index.html`](static/index.html).
+The server code for generating JWTs is in [`routes/createJWT.js`](routes/createJWT.js). The embed chat client code is in [`static/index.html`](static/index.html).
 
 ## JWT Structure and Supported Fields
 
@@ -138,7 +160,7 @@ The server is required for creating the JWTs that are required to enable securit
 
 1. Navigate to the secure-embed-chat-node directory:
    ```bash
-   cd examples/embed_chat/secure-embed-chat-node
+   cd embed_chat_examples/secure-embed-chat-node
    ```
 2. Install dependencies:
    ```bash
@@ -150,15 +172,15 @@ The server is required for creating the JWTs that are required to enable securit
    ```
 4. The server will be available at `http://localhost:5555`.
 
-### Running the JavaScript Example
+### Viewing the Example
 
 - After starting the server, open [http://localhost:5555/](http://localhost:5555/) in your browser.
-- The wxO embed chat will load with security enabled, using JWT authentication.
-- The chat will automatically fetch a JWT token from the server before initializing.
+- The wxO embed chat will load with security enabled using JWT authentication.
+- The page will request a JWT token from the backend before chat initialization.
 
 ## Setting up your own agent
 
-This example is configured to use an existing agent set up for demonstration purposes. If you want to set up your own agent, you'll need to perform the steps below:
+This example uses sample values. To configure it for your own agent:
 
 1. **Generate your keys** (if you haven't already):
    
@@ -178,18 +200,35 @@ This example is configured to use an existing agent set up for demonstration pur
    ```
 
 2. **Update the keys in your project**:
-   - Copy your public key into the file [`keys/example-jwtRS256.key.pub`](keys/example-jwtRS256.key.pub)
-   - Copy your private key into the file [`keys/example-jwtRS256.key`](keys/example-jwtRS256.key)
-   - Note: You'll need to restart the server if you change these files.
+   - Copy your public key into [`keys/example-jwtRS256.key.pub`](keys/example-jwtRS256.key.pub)
+   - Copy your private key into [`keys/example-jwtRS256.key`](keys/example-jwtRS256.key)
+   - Restart the server after changing either file
 
-3. **Configure your agent**:
-   - Modify the `orchestrationID`, `hostURL`, and `chatOptions` in [`static/index.html`](static/index.html) to match your agent's configuration.
-   - You can find these values in your agent's embed code from the watsonx Orchestrate console.
+3. **Configure your agent in the client page**:
+   - Open [`static/index.html`](static/index.html)
+   - Replace the `window.wxOConfiguration` values with the values from your agent embed code
+   - Update:
+     - `orchestrationID`
+     - `hostURL`
+     - `agentId`
+     - `agentEnvironmentId` (optional for live environments)
 
-4. **Configure security in watsonx Orchestrate**:
-   - Open the Security settings for your wxO embed chat in the watsonx Orchestrate console.
-   - Copy your public key into the "Your public key" field.
-   - For detailed instructions, see the [security architecture documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture).
+   **Note about `agentEnvironmentId`:**
+   - This field is **optional**
+   - It is typically omitted for draft environments
+   - Include it when your embed code provides a live environment identifier
+
+4. **Configure your JWT generation logic**:
+   - Open [`routes/createJWT.js`](routes/createJWT.js)
+   - Update the claims you want to send, such as `sub`, `context`, and optional encrypted `user_payload`
+   - Only place sensitive authentication data in encrypted `user_payload`
+   - Do not use the reserved `wxo_` prefix in custom `context` fields
+
+5. **Configure security in watsonx Orchestrate**:
+   - Open the Security settings for your wxO embed chat in the watsonx Orchestrate console
+   - Upload or paste your client public key
+   - If using encrypted `user_payload`, ensure you are using IBM's public key correctly
+   - For full instructions, see the [security architecture documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
 
 ## Automated Setup Script
 
@@ -241,11 +280,11 @@ When generating new keys, the script creates:
 
 ## Key Files
 
-- [`server.js`](server.js) - Express server configuration
+- [`server.js`](server.js) - Express server for serving the static site and JWT endpoint wiring
 - [`routes/createJWT.js`](routes/createJWT.js) - JWT creation logic with RS256 signing and optional payload encryption
-- [`static/index.html`](static/index.html) - wxO embed chat integration with JWT authentication
-- [`keys/`](keys/) - Directory containing RSA key pairs (public and private keys)
-- [`wxO-embed-chat-security-tool-v2.sh`](../wxO-embed-chat-security-tool-v2.sh) - Automated script for enabling/disabling embed security
+- [`static/index.html`](static/index.html) - Secure wxO embed chat page that fetches a JWT before initialization
+- [`keys/`](keys/) - RSA key directory for client signing keys and IBM's public key
+- [`wxO-embed-chat-security-tool-v2.sh`](../wxO-embed-chat-security-tool-v2.sh) - Helper script for enabling or disabling embed security
 
 ## Security Notes and Best Practices
 
@@ -312,10 +351,25 @@ When generating new keys, the script creates:
 - Implement proper user permission validation in your application
 - Review and audit user access regularly
 
-### Additional Resources
+## Comparison: Anonymous vs Secure
 
-For more information on security best practices, refer to:
-- [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
+| Feature | Anonymous | Secure (This Example) |
+|---------|-----------|------------------------|
+| User Authentication | ❌ No | ✅ Yes |
+| JWT Required | ❌ No | ✅ Yes |
+| Encrypted Payloads | ❌ No | ✅ Yes |
+| User Context | ❌ None | ✅ Full |
+| Audit Trails | ❌ Limited | ✅ Complete |
+| SSO Integration | ❌ No | ✅ Yes |
+| Production Ready | ⚠️ Public only | ✅ Yes |
+| Sensitive Data | ❌ Not recommended | ✅ Yes |
+
+For simpler public demos without authentication, see the [anonymous-embed-chat-node](../anonymous-embed-chat-node) example.
+
+## Additional Resources
+
 - [Getting Started Guide](https://developer.watson-orchestrate.ibm.com/webchat/get_started)
+- [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
 - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
 - [Context Variables Documentation](https://developer.watson-orchestrate.ibm.com/webchat/context_variables)
+- [Agent Integration Documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents)
