@@ -45,7 +45,6 @@ npm start
 
 ## Documentation
 
-- **[SECURITY.md](./SECURITY.md)** - Comprehensive security guide covering security modes, authentication, key management, and best practices
 - [Getting Started with Embedded Chat](https://developer.watson-orchestrate.ibm.com/webchat/get_started)
 - [Context Variables](https://developer.watson-orchestrate.ibm.com/webchat/context_variables)
 - [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
