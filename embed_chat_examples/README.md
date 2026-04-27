@@ -49,6 +49,8 @@ npm start
 - [Context Variables](https://developer.watson-orchestrate.ibm.com/webchat/context_variables)
 - [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
 - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+- [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+- [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 
 ## Quick Comparison
 

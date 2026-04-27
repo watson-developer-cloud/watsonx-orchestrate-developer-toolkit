@@ -4,6 +4,8 @@
 - [Getting Started with Embedded Chat](https://developer.watson-orchestrate.ibm.com/webchat/get_started)
 - [Context Variables](https://developer.watson-orchestrate.ibm.com/webchat/context_variables)
 - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+- [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+- [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 
 ## Overview
 
@@ -109,7 +111,10 @@ This example is configured to use placeholder values. To use your own agent:
 2. **Disable security in watsonx Orchestrate** (if enabled):
    - Open the Security settings for your wxO embed chat in the watsonx Orchestrate console
    - Ensure security is disabled for anonymous access
-   - For detailed instructions, see the [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+   - For detailed instructions, see:
+     - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+     - [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+     - [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 
 ## Key Files
 
@@ -160,4 +165,7 @@ For production deployments with authentication, see the [secure-embed-chat-node]
 
 - [Getting Started Guide](https://developer.watson-orchestrate.ibm.com/webchat/get_started)
 - [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
+- [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+- [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+- [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 - [Agent Integration Documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents)

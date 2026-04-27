@@ -5,6 +5,8 @@
 - [Context Variables](https://developer.watson-orchestrate.ibm.com/webchat/context_variables)
 - [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
 - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+- [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+- [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 
 ## Overview
 
@@ -228,55 +230,10 @@ This example uses sample values. To configure it for your own agent:
    - Open the Security settings for your wxO embed chat in the watsonx Orchestrate console
    - Upload or paste your client public key
    - If using encrypted `user_payload`, ensure you are using IBM's public key correctly
-   - For full instructions, see the [security architecture documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
-
-## Automated Setup Script
-
-This example includes a helper script [`wxO-embed-chat-security-tool-v2.sh`](../wxO-embed-chat-security-tool-v2.sh) that automates the process of enabling or disabling embed security for your watsonx Orchestrate instance.
-
-### What the script does:
-
-- **Enables or disables** embed security for your watsonx Orchestrate instance
-- **Supports multiple platforms**: IBM Cloud, AWS, and Cloud Pak for Data (CPD)
-- **Generates RSA key pairs** automatically or uses your existing keys
-- **Fetches IBM's public key** for encrypting user payloads
-- **Configures security settings** via the watsonx Orchestrate API
-- **Verifies configuration** after making changes
-
-### Usage:
-
-```bash
-# Make the script executable
-chmod +x ../wxO-embed-chat-security-tool-v2.sh
-
-# Run the script
-../wxO-embed-chat-security-tool-v2.sh
-```
-
-The script will prompt you for:
-1. Whether to enable or disable security
-2. Your API Instance URL (format depends on platform):
-   - **IBM Cloud/AWS**: `https://api.<host>/instances/<INSTANCE_ID>`
-   - **CPD**: `https://<host>/orchestrate/<CPD_INSTANCE>/instances/<INSTANCE_ID>`
-3. Authentication credentials (API key for IBM Cloud/AWS, or username/password for CPD)
-4. Whether to use an existing public key or generate a new RSA keypair
-
-### Requirements:
-
-The script requires the following commands to be available:
-- `curl` - for API requests
-- `jq` - for JSON processing
-- `openssl` - for key generation
-- `sed`, `tr`, `grep` - for text processing
-
-### Generated Files:
-
-When generating new keys, the script creates:
-- `keys/example-jwtRS256.key` - Your private key (keep secure!)
-- `keys/example-jwtRS256.key.pub` - Your public key (uploaded to watsonx Orchestrate)
-- `keys/ibmPublic.key.pub` - IBM's public key (for encrypting user payloads)
-
-**Note**: This script is a convenience tool for development and testing. For production deployments, follow your organization's security and deployment procedures.
+   - Follow the IBM documentation for setup details:
+     - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+     - [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+     - [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 
 ## Key Files
 
@@ -284,7 +241,6 @@ When generating new keys, the script creates:
 - [`routes/createJWT.js`](routes/createJWT.js) - JWT creation logic with RS256 signing and optional payload encryption
 - [`static/index.html`](static/index.html) - Secure wxO embed chat page that fetches a JWT before initialization
 - [`keys/`](keys/) - RSA key directory for client signing keys and IBM's public key
-- [`wxO-embed-chat-security-tool-v2.sh`](../wxO-embed-chat-security-tool-v2.sh) - Helper script for enabling or disabling embed security
 
 ## Security Notes and Best Practices
 
@@ -371,5 +327,7 @@ For simpler public demos without authentication, see the [anonymous-embed-chat-n
 - [Getting Started Guide](https://developer.watson-orchestrate.ibm.com/webchat/get_started)
 - [Security Architecture](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents#security-architecture)
 - [IBM Docs: Securing Embedded Chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=applications-securing-embedded-chat)
+- [Configuring security for embedded chat](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-embedded)
+- [Configuring security with scripting](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=chat-configuring-security-scripting)
 - [Context Variables Documentation](https://developer.watson-orchestrate.ibm.com/webchat/context_variables)
 - [Agent Integration Documentation](https://developer.watson-orchestrate.ibm.com/agents/integrate_agents)
