@@ -30,9 +30,10 @@ const ALLOWED_ENVIRONMENTS = [
  * This is the array of organization ids that the agent is allowed to belong to. At least one value here is required. Without this, this
  * server will generate a jwt for any agent belonging to any Genesys organization.
  */
-const ALLOWED_ORG_IDS = [ '5744345c-fb43-4393-b254-704a5cf649b6' ];
+const ALLOWED_ORG_IDS = [
+    // e.g. 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+];
 
-// This is the id of the organization 
 
 /**
  * This function handles the http request to create a jwt. I will exchange the Genesys provided oauth code for a jwt signed with the
