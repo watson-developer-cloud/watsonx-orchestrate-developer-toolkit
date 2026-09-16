@@ -1,0 +1,314 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Agent Assist Embedded Chat</title>
+        <meta charset="UTF-8" />
+
+        <style>
+            body,
+            html {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .root-container {
+                background-color: #ffffff;
+                background-image: linear-gradient(to bottom, white 0%, white 50%, transparent 50%, rgba(69, 137, 255, 0.1) 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+            }
+
+            .loader-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                height: 100%;
+            }
+
+            .loader {
+                border: 10px solid #f3f3f3;
+                border-top: 10px solid #3498db;
+                border-radius: 50%;
+                width: 70px;
+                height: 70px;
+                animation: spin 1s linear infinite;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+
+            .loader-text {
+                color: #161616;
+                font-family: 'IBM Plex Sans';
+                font-size: 28px;
+                margin-top: 20px;
+            }
+
+            .error-container {
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start;
+                padding: 28px 20px 30px;
+                box-sizing: border-box;
+            }
+
+            .error-icon {
+                width: 120px;
+                height: 120px;
+                opacity: 0.4;
+                margin-bottom: 24px;
+            }
+
+            .title {
+                font-size: 28px;
+                color: #161616;
+                margin-bottom: 10px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+                color: #525252;
+                margin-bottom: 20px;
+            }
+
+            .retry-btn {
+                padding: 10px 20px;
+                display: inline-flex;
+                gap: 8px;
+                align-items: center;
+                height: 30px;
+                border-radius: 32px;
+                border: 1px solid var(--Button-button-tertiary, #0f62fe);
+                background: var(--Transparent, rgba(255, 255, 255, 0));
+                background-blend-mode: multiply;
+                color: var(--Button-button-tertiary, #0f62fe);
+                font-family: var(--Fixed-Body-Font-family, 'IBM Plex Sans');
+                font-size: 14px;
+                font-style: normal;
+                font-weight: 400;
+                line-height: 18px;
+                letter-spacing: 0.16px;
+                cursor: pointer;
+            }
+
+            .retry-btn:hover {
+                background: rgba(45, 108, 255, 0.1);
+            }
+
+            .retry-btn svg {
+                width: 18px;
+                height: 18px;
+            }
+        </style>
+
+        <script>
+            const debugLabel = `[agentAssistEmbed]`;
+
+            const parameters = new URLSearchParams(window.location.search);
+
+            // Returns the root container where loader, error UI, and chat mount.
+            const root = () => document.getElementById('root');
+
+            /**
+             * Renders a fresh loader UI centered in the root container.
+             * Always produces a clean known state for reinitialization.
+             */
+            const renderLoader = (message) => {
+                root().innerHTML = `
+                <div class="loader-container">
+                    <div class="loader"></div>
+                    <div class="loader-text">Initializing Agent Assist...</div>
+                </div>
+            `;
+            };
+
+            // Shows loader by regenerating markup.
+            const showLoader = () => renderLoader();
+
+            // Hides loader when chat is initialized or when showing errors
+            const hideLoader = () => {
+                const loader = document.querySelector('.loader-container');
+                if (loader) loader.style.display = 'none';
+            };
+
+            /**
+             * Renders an error screen with optional retry button.
+             *
+             * @param {string} title     The primary error message.
+             * @param {string} details   More detailed message or context.
+             * @param {boolean} showRetry Whether to show the retry button.
+             */
+            function showError(title, details, showRetry) {
+                hideLoader();
+
+                root().innerHTML = `
+                    <div class="error-container">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI4IiBoZWlnaHQ9IjEyOCIgdmlld0JveD0iMCAwIDEyOCAxMjgiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxwYXRoIGQ9Ik05NC44MDIgMTI0LjY4NUwyNi4wMDIgODQuOTU2OUwzMy43NzggODAuNDYwOUwxMDIuNTc4IDEyMC4xODlMOTQuODAyIDEyNC42ODVaIiBmaWxsPSJ1cmwoI3BhaW50MF9saW5lYXJfMTQ5N18xOTQ0KSIvPgo8cGF0aCBkPSJNNjEuMzQ0OCAxMC40MTMzQzgwLjc4NDggMjEuNjEzMyA5Ni41NDQ4IDQ4LjgxMzMgOTYuNDE2OCA3MS4yMTMzQzk2LjI4ODggOTMuNjEzMyA4MC41NDQ4IDEwMi41MjUgNjEuMDcyOCA5MS4zMDkzQzQxLjYwMDggODAuMDkzMyAyNS44NzI4IDUyLjkwOTMgMjYuMDAwOCAzMC41MDkzQzI2LjEyODggOC4xMDkyNyA0MS44NzI4IC0wLjgwMjcyOCA2MS4zNDQ4IDEwLjQxMzNaIiBmaWxsPSJ1cmwoI3BhaW50MV9saW5lYXJfMTQ5N18xOTQ0KSIvPgo8cGF0aCBkPSJNNjcuNTA1NCA2LjgyODk5QzU3LjcyOTQgMS4xODA5OSA0OC44NjU0IDAuNjUyOTkzIDQyLjQ2NTQgNC4zODA5OUwzNi42MDk0IDcuNzg4OTlDNDIuOTc3NCA0LjI2ODk5IDUxLjc0NTQgNC44NjA5OSA2MS4zNDU0IDEwLjQxM0M4MC43ODU0IDIxLjYxMyA5Ni41NDU0IDQ4LjgxMyA5Ni40MTc0IDcxLjIxM0M5Ni40MTc0IDgyLjA0NSA5Mi42NTc0IDg5Ljc0MSA4Ni42MDk0IDkzLjUxN0g4Ni40OTc0Qzg1Ljk4NTQgOTMuODM3IDkyLjM1MzQgOTAuMTU3IDkyLjM1MzQgOTAuMTU3Qzk4Ljc1MzQgODYuNDc3IDEwMi41NzcgNzguNjY5IDEwMi42MDkgNjcuNTY1QzEwMi42NDEgNDUuMjYxIDg2Ljk0NTQgMTguMDQ1IDY3LjUwNTQgNi44Mjg5OVoiIGZpbGw9InVybCgjcGFpbnQyX2xpbmVhcl8xNDk3XzE5NDQpIi8+CjxwYXRoIGQ9Ik00NS41MjIgNS41OTcwNVY2LjE3MzA1QzUxLjAxNjMgNi4zODY4OCA1Ni4zNTc3IDguMDQyMjcgNjEuMDEgMTAuOTczMUM4MC4yMSAyMi4wNzcxIDk1Ljg1OCA0OS4xMTcxIDk1Ljc5NCA3MS4yMTMxQzk1Ljc5NCA4Ni4yNTMxIDg4LjQ5OCA5NS41ODExIDc2Ljg2NiA5NS41ODExQzcxLjM3MSA5NS4zNzEgNjYuMDI4NiA5My43MTUzIDYxLjM3OCA5MC43ODExQzQyLjE0NiA3OS42NzcxIDI2LjUzIDUyLjY1MzEgMjYuNTk0IDMwLjU0MTFDMjYuNTk0IDE1LjUxNzEgMzMuODkgNi4xNzMwNSA0NS41MjIgNi4xNzMwNVY1LjU5NzA1Wk00NS41MjIgNS41OTcwNUMzMy45ODYgNS41OTcwNSAyNi4wNSAxNC43MzMxIDI2LjAwMiAzMC41NDExQzI2LjAwMiA1Mi45NDExIDQxLjYzNCA4MC4xNDExIDYxLjA3NCA5MS4zNDExQzY1LjgzMTQgOTQuMjg2MyA3MS4yNzQzIDk1Ljk0MDcgNzYuODY2IDk2LjE0MTFDODguNDAyIDk2LjE0MTEgOTYuMzM4IDg3LjAwNTEgOTYuMzg2IDcxLjE4MTFDOTYuMzg2IDQ4Ljg2MTEgODAuNzU0IDIxLjY2MTEgNjEuMzE0IDEwLjM4MTFDNTYuNTYwMyA3LjQyNzY2IDUxLjExNTEgNS43NzI2IDQ1LjUyMiA1LjU4MTA1VjUuNTk3MDVaIiBmaWxsPSJ1cmwoI3BhaW50M19saW5lYXJfMTQ5N18xOTQ0KSIvPgo8cGF0aCBkPSJNNjEuMjMzMiA3OS4wMDQ2QzU5LjQ3OTEgNzguMDczMiA1OC4wMDg4IDc2LjY4NTcgNTYuOTc3MiA3NC45ODg2QzU2LjEzODggNzMuNTI3MSA1NS42OTIzIDcxLjg3MzYgNTUuNjgxMiA3MC4xODg2VjY4LjU4ODZDNTUuNjEzMyA2Ny45ODk1IDU1LjY5NjMgNjcuMzgyOSA1NS45MjI2IDY2LjgyNEM1Ni4xNDkgNjYuMjY1MSA1Ni41MTE1IDY1Ljc3MTcgNTYuOTc3MiA2NS4zODg2QzU3Ljg0MTIgNjQuODI4NiA1OS4yNjUyIDY1LjExNjYgNjEuMjMzMiA2Ni4yNTI2QzYyLjk2NDkgNjcuMTc4OSA2NC40MDkzIDY4LjU2MjUgNjUuNDA5MiA3MC4yNTI2QzY2LjI1MTEgNzEuNzEyOCA2Ni42OTc4IDczLjM2NzIgNjYuNzA1MiA3NS4wNTI2Vjc2LjY1MjZDNjYuNzkwMyA3Ny4yNjQ3IDY2LjcxNTcgNzcuODg4NCA2Ni40ODg2IDc4LjQ2MzFDNjYuMjYxNSA3OS4wMzc4IDY1Ljg4OTcgNzkuNTQ0IDY1LjQwOTIgNzkuOTMyNkM2NC41NDUyIDgwLjM5NjYgNjMuMTUzMiA4MC4xMjQ2IDYxLjIzMzIgNzkuMDA0NlpNNTkuMzc3MiA2MC4zOTY2TDU2LjU0NTIgMzUuNzcyNlYyMC4xNDA2TDY1Ljg0MTIgMjUuNTE2NlY0MS4wODQ2TDYzLjIxNzIgNjIuNjIwNkw1OS4zNzcyIDYwLjM5NjZaIiBmaWxsPSJ1cmwoI3BhaW50NF9saW5lYXJfMTQ5N18xOTQ0KSIvPgo8ZGVmcz4KPGxpbmVhckdyYWRpZW50IGlkPSJwYWludDBfbGluZWFyXzE0OTdfMTk0NCIgeDE9IjQ2Ljg4MiIgeTE9IjcyLjQyODkiIHgyPSI4My45ODU5IiB5Mj0iMTM2LjY4NSIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjNTI1MjUyIiBzdG9wLW9wYWNpdHk9IjAuMDUiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLW9wYWNpdHk9IjAuMSIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50MV9saW5lYXJfMTQ5N18xOTQ0IiB4MT0iNjEuMTg0OCIgeTE9IjgzLjQ4NTMiIHgyPSI2MS4xODQ4IiB5Mj0iNC42MjEyNyIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSIjQzZDNkM2Ii8+CjxzdG9wIG9mZnNldD0iMC43OCIgc3RvcC1jb2xvcj0iI0UwRTBFMCIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50Ml9saW5lYXJfMTQ5N18xOTQ0IiB4MT0iMjcuODU3NCIgeTE9IjIxLjgzNyIgeDI9IjExMy41NjkiIHkyPSI3MS4zMjUiIGdyYWRpZW50VW5pdHM9InVzZXJTcGFjZU9uVXNlIj4KPHN0b3Agc3RvcC1jb2xvcj0iI0UwRTBFMCIvPgo8c3RvcCBvZmZzZXQ9IjAuMTMiIHN0b3AtY29sb3I9IiNGNEY0RjQiLz4KPHN0b3Agb2Zmc2V0PSIwLjU2IiBzdG9wLWNvbG9yPSIjRTBFMEUwIi8+CjxzdG9wIG9mZnNldD0iMC42MiIgc3RvcC1jb2xvcj0iI0Q4RDhEOCIvPgo8c3RvcCBvZmZzZXQ9IjAuNyIgc3RvcC1jb2xvcj0iI0M2QzZDNiIvPgo8c3RvcCBvZmZzZXQ9IjAuODkiIHN0b3AtY29sb3I9IiNBOEE4QTgiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjOEQ4RDhEIi8+CjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0icGFpbnQzX2xpbmVhcl8xNDk3XzE5NDQiIHgxPSI0My42NSIgeTE9IjgxLjI0NTEiIHgyPSI3OC43MzgiIHkyPSIyMC40NzcxIiBncmFkaWVudFVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+CjxzdG9wIG9mZnNldD0iMC41NCIgc3RvcC1jb2xvcj0iI0QwRDBEMCIgc3RvcC1vcGFjaXR5PSIwIi8+CjxzdG9wIG9mZnNldD0iMC44MiIgc3RvcC1jb2xvcj0iI0YxRjFGMSIgc3RvcC1vcGFjaXR5PSIwLjciLz4KPHN0b3Agb2Zmc2V0PSIwLjk0IiBzdG9wLWNvbG9yPSJ3aGl0ZSIvPgo8L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InBhaW50NF9saW5lYXJfMTQ5N18xOTQ0IiB4MT0iNDQuODAxMiIgeTE9IjQxLjQ2ODYiIHgyPSI3NC4zODUyIiB5Mj0iNTguNTQwNiIgZ3JhZGllbnRVbml0cz0idXNlclNwYWNlT25Vc2UiPgo8c3RvcCBzdG9wLWNvbG9yPSJ3aGl0ZSIvPgo8c3RvcCBvZmZzZXQ9IjAuMDUiIHN0b3AtY29sb3I9IiNGREZERkQiLz4KPHN0b3Agb2Zmc2V0PSIwLjMiIHN0b3AtY29sb3I9IiNGNkY2RjYiLz4KPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjRjRGNEY0Ii8+CjwvbGluZWFyR3JhZGllbnQ+CjwvZGVmcz4KPC9zdmc+Cg==" class="error-icon" />
+                        <div class="title">${title}</div>
+                        ${details ? `<div class="subtitle">${details}</div>` : ''}
+                        ${
+                            showRetry
+                                ? `<button class="retry-btn">
+                                    Retry
+                                    <svg viewBox="0 0 24 24">
+                                        <path fill="#2d6cff"
+                                            d="M12 5V1L7 6l5 5V7c2.8 0 5 2.2 5 5s-2.2 5-5 5-5-2.2-5-5H5c0 3.9 3.1 7 7 7s7-3.1 7-7-3.1-7-7-7z"/>
+                                    </svg>
+                                </button>`
+                                : ''
+                        }
+                    </div>
+                `;
+
+                const retryBtn = document.querySelector('.retry-btn');
+                if (retryBtn) {
+                    retryBtn.onclick = () => {
+                        renderLoader();
+                        initChat?.();
+                    };
+                }
+            }
+
+            // Parses URL query params into a config object.
+            function getQueryParams() {
+                const agentAssistParams = {
+                    orchestrationID: parameters.get('orchestrationID'),
+                    agentId: parameters.get('agentId'),
+                    conversationId: parameters.get('conversationId'),
+                    local: parameters.get('local') === 'true',
+                };
+
+                if (parameters.has('agentEnvironmentId')) {
+                    agentAssistParams.agentEnvironmentId = parameters.get('agentEnvironmentId');
+                }
+
+                // Extract contact center config parameters (cc_config.*).
+                const contactCenterConfig = {};
+                parameters.entries().forEach(([key, value]) => {
+                    if (key.startsWith('cc_config.')) {
+                        const configKey = key.substring('cc_config.'.length);
+                        contactCenterConfig[configKey] = value;
+                    }
+                });
+
+                agentAssistParams.contactCenterConfig = contactCenterConfig;
+
+                return agentAssistParams;
+            }
+
+            function onChatLoad(instance) {
+                hideLoader();
+
+                instance.on('authTokenNeeded', () => {
+                    root().innerHTML = `
+                        <div class="loader-container">
+                            <div class="loader-text">Embed security is enabled. Access to the dashboard is restricted.</div>
+                        </div>
+                    `;
+                });
+            }
+
+            /**
+             * Initializes chat: validates context, loads config, subscribes,
+             * loads embed script, and boots chat.
+             */
+            async function initChat(token) {
+                console.log(`${debugLabel} Initializing chat`);
+
+                showLoader();
+
+                const queryParameters = getQueryParams();
+
+                const missing = Object.values(queryParameters).some((parameter) => !parameter && typeof parameter !== 'boolean');
+                if (missing) {
+                    return showError(
+                        'Unable to connect to Agent Assist',
+                        'Missing required configuration parameters. Please check the url.'
+                    );
+                }
+
+                // Note that the dashboard may only be loaded from the same origin that's hosting this html file. This is to avoid
+                // someone injecting a malicious host via a url parameter.
+                const hostURL = window.location.origin;
+
+                window.wxOConfiguration = {
+                    orchestrationID: queryParameters.orchestrationID,
+                    hostURL,
+                    rootElementId: 'root',
+                    chatOptions: {
+                        agentId: queryParameters.agentId,
+                        agentEnvironmentId: queryParameters.agentEnvironmentId,
+                        onLoad: onChatLoad,
+                    },
+                    layout: {
+                        form: 'agent-assist',
+                    },
+                    launcher: {
+                        showLauncher: false,
+                        openByDefault: true,
+                    },
+                    header: {
+                        showMinimize: false,
+                    },
+                    agentAssist: {
+                        conversationId: queryParameters.conversationId,
+                        contactCenterConfig: queryParameters.contactCenterConfig,
+                    },
+                    token,
+                };
+
+                let path;
+
+                if (queryParameters.local) {
+                    path = `/wxoLoader.js?embed=true`;
+                } else {
+                    path = `/wxochat/wxoLoader.js?embed=true`;
+                }
+
+                const script = document.createElement('script');
+                script.src = `${hostURL}${path}`;
+
+                script.onload = () => {
+                    if (!window.wxoLoader) {
+                        return showError('Initialization Error', 'Chat loader not found.', true);
+                    }
+                    window.wxoLoader.init();
+                };
+
+                script.onerror = () => showError('Loading Error', 'Failed to load chat script.', true);
+
+                document.head.appendChild(script);
+            }
+
+            document.addEventListener('DOMContentLoaded', () => {
+                if (parameters.get('waitForAuth') === 'true') {
+                    // We actually need to wait for authentication to complete before loading. Add a listener to receive the auth
+                    // information and let the parent frame know we're waiting.
+                    window.addEventListener('message', (event) => {
+                        console.log(`${debugLabel} Got event`, event);
+                        if (event.data?.type === 'wxOAgentAssist:configLoaded') {
+                            initChat(event.data?.config?.jwt);
+                        }
+                    });
+                    window.postMessage('wxOAgentAssist:waitingForAuth');
+                } else {
+                    initChat();
+                }
+            });
+        </script>
+    </head>
+
+    <body>
+        <div id="root" class="root-container"></div>
+    </body>
+</html>

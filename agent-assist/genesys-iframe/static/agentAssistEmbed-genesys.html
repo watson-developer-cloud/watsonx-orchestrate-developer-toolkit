@@ -1,0 +1,282 @@
+<!doctype html>
+<!--
+  watsonX Orchestrate Agent Assist loading script for Genesys.
+  ════════════════════════════════════════════════════════════════════════════========================================
+  PURPOSE
+    This file is the main entry point for loading the wxO agent assist dashboard used inside of the Genesys
+    application. If security is enabled, this file will be used to request an authorization code for the current agent
+    and use that to create a JWT which can then be passed to the wxO chat for authorization to access wxO. This uses
+    the OAuth grant type Authorization Code Grant with PKCE.
+
+    This file is expected to be loaded into an iframe within the Genesys application. Once the user's identity has
+    been resolved and a JWT created, it will inject a second iframe that contains the wxO agent assist dashboard.
+    The JWT is sent to the second iframe using a "postMessage" call.
+   
+    The JWT is created by calling the configured endpoint below. This endpoint must have access to the customer's
+    private key used for signing the JWT.
+
+    The value of "CREATE_JWT_ENDPOINT" may be replaced with the url to the endpoint used for creating a JWT.
+
+    The file expects the following parameters:
+
+        - oauthClientId: The OAuth client id configured in Genesys.
+        - pcEnvironment: The environment being used and from which to request authorization. Only environments in the
+          allowed list are permitted.
+
+    The file also expects the following parameters which are not used directly here but are passed to the dashboard.
+
+        - orchestrationID: The orchestration ID for the wxO chat.
+        - agentId: The id of the wxO agent to connect the chat to.
+        - agentEnvironmentId (optional): The environment id of the wxO agent to connect to. This defaults to the
+          draft environment.
+        - conversationId: The Genesys conversation ID of the conversation the dashboard should be subscribed to
+        - cc_config.*: An open bucket of properties that may be added. These properties are sent to wxO when
+          it is subscribing to the conversation.
+
+    This page is initially loaded with the "oauthClientId" and "pcEnvironment" parameters. This page will then redirect
+    to the OAuth endpoints used by Genesys. Once authorization is complete, this page will be loaded again except
+    "oauthClientId" and "pcEnvironment" will be replaced by "code" and "state" parameters. The "code" parameter is
+    then passed to the endpoint used for the token exchange.
+
+    This page will wait to receive a "wxOAgentAssist:waitingForAuth" message from the contained iframe before sending
+    it the JWT.
+-->
+<html lang="en">
+    <head>
+        <style>
+            body, html, iframe {
+                padding: 0;
+                border: 0;
+                margin: 0;
+                width: 100%;
+                height: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <script>
+            const CREATE_JWT_ENDPOINT = '/createJwt';
+
+            // Guard against open-redirect: only allow known Genesys environment hostnames.
+            const ALLOWED_ENVIRONMENTS = new Set([
+                'mypurecloud.com',
+                'mypurecloud.de',
+                'mypurecloud.jp',
+                'mypurecloud.ie',
+                'mypurecloud.com.au',
+                'usw2.pure.cloud',
+                'cac1.pure.cloud',
+                'euw2.pure.cloud',
+                'aps1.pure.cloud',
+                'apne2.pure.cloud',
+                'apne3.pure.cloud',
+                'sae1.pure.cloud',
+                'mec1.pure.cloud',
+                'ind1.pure.cloud',
+            ]);
+
+            const DEBUG_LABEL = `[agentAssistEmbed-genesys]`;
+            
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Indicates if we've received our new jwt but it hasn't been sent to the dashboard yet.
+            let pendingJwt = null;
+            // Indicates if the dashboard is waiting for a jwt token.
+            let isWaiting = false;
+            let iframeElement = null;
+
+            // ── PKCE helpers (Web Crypto API — no external dependency) ─────────────────
+
+            function base64UrlEncode(buffer) {
+                return btoa(String.fromCharCode(...new Uint8Array(buffer)))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/, '');
+            }
+
+            function generateRandom(length) {
+                const buffer = new Uint8Array(length);
+                crypto.getRandomValues(buffer);
+                return base64UrlEncode(buffer);
+            }
+
+            async function generateCodeChallenge(verifier) {
+                const enc = new TextEncoder().encode(verifier);
+                const hash = await crypto.subtle.digest('SHA-256', enc);
+                return base64UrlEncode(hash);
+            }
+
+            // ── Session storage keys ────────────────────────────────────────────────────
+            const SK_VERIFIER = 'pkce_verifier';
+            const SK_STATE = 'pkce_state';
+            const SK_CLIENT_ID = 'pkce_client_id';
+            const SK_ENVIRONMENT = 'pkce_environment';
+            const ORIGINAL_QUERY = 'original_query';
+
+            // ── Main ───────────────────────────────────────────────────────────────────
+
+            /**
+             * This will inject the dashboard iframe into the document.
+             */
+            function insertDashboard(originalQuery, waitForAuth) {
+                window.addEventListener('message', (event) => {
+                    if (event.data === 'wxOAgentAssist:waitingForAuth') {
+                        console.log(`${DEBUG_LABEL} Got event`, event);
+                        isWaiting = true;
+                        if (pendingJwt) {
+                            sendConfig(pendingJwt);
+                            pendingJwt = null;
+                        }
+                    }
+                });
+
+                const newParams = new URLSearchParams(originalQuery);
+                newParams.delete('code');
+                newParams.delete('state');
+                newParams.delete('oauthClientId');
+                newParams.delete('pcEnvironment');
+
+                if (waitForAuth) {
+                    newParams.set('waitForAuth', 'true');
+                }
+
+                const url = new URL('agentAssistEmbed.html', window.location.href);
+                url.search = newParams.toString();
+
+                iframeElement = document.createElement('iframe');
+                iframeElement.src = url.toString();
+                iframeElement.allow = 'clipboard-write';
+
+                document.body.appendChild(iframeElement);
+            }
+
+            /**
+             * Sends the jwt to the dashboard.
+             */
+            function sendConfig(jwt) {
+                iframeElement.contentWindow.postMessage({ type: 'wxOAgentAssist:configLoaded', config: { jwt } }, window.location.origin);
+            }
+
+            /**
+             * Runs the behavior of this page. If no code is present, this will initiate the Genesys OAuth flow. If a code is present, that
+             * means that flow has started and we can continue to exchange the code for a jwt.
+             */
+            async function run() {
+                const code = urlParams.get('code');
+                const retState = urlParams.get('state');
+
+                // ── Step 2: Returning from Genesys with ?code= ────────────────────────
+                if (code) {
+                    const verifier = sessionStorage.getItem(SK_VERIFIER);
+                    const savedState = sessionStorage.getItem(SK_STATE);
+                    const clientId = sessionStorage.getItem(SK_CLIENT_ID);
+                    const environment = sessionStorage.getItem(SK_ENVIRONMENT);
+                    const originalQuery = sessionStorage.getItem(ORIGINAL_QUERY);
+
+                    // Clean up session storage — verifier is single-use
+                    sessionStorage.removeItem(SK_VERIFIER);
+                    sessionStorage.removeItem(SK_STATE);
+                    sessionStorage.removeItem(SK_CLIENT_ID);
+                    sessionStorage.removeItem(SK_ENVIRONMENT);
+                    sessionStorage.removeItem(ORIGINAL_QUERY);
+
+                    insertDashboard(originalQuery, true);
+
+                    const redirectUri = window.location.origin + window.location.pathname;
+
+                    const jwt = await callCreateJwt({ code, verifier, redirectUri, clientId, environment });
+                    handleJwt(jwt);
+                    return;
+                }
+
+                // ── Step 1: Read config and start PKCE flow ───────────────────────────
+                const config = {
+                    oauthClientId: urlParams.get('oauthClientId') || null,
+                    pcEnvironment: urlParams.get('pcEnvironment') || null,
+                };
+
+                if (!config.oauthClientId && !config.pcEnvironment) {
+                    // No auth needed so just load the dashboard now. If chat security is enabled, it will fail to load.
+                    console.log(`${DEBUG_LABEL} No OAuth parameters present. Skipping authorization.`);
+                    insertDashboard(window.location.search, false);
+                    return;
+                }
+
+                if (!ALLOWED_ENVIRONMENTS.has(config.pcEnvironment)) {
+                    console.error(`${DEBUG_LABEL} Rejected unknown pcEnvironment: ${config.pcEnvironment}`);
+                    return;
+                }
+
+                const redirectUri = window.location.origin + window.location.pathname;
+                const verifier = generateRandom(64);
+                const state = generateRandom(16);
+                const challenge = await generateCodeChallenge(verifier);
+
+                // Persist across the redirect.
+                sessionStorage.setItem(SK_VERIFIER, verifier);
+                sessionStorage.setItem(SK_STATE, state);
+                sessionStorage.setItem(SK_CLIENT_ID, config.oauthClientId);
+                sessionStorage.setItem(SK_ENVIRONMENT, config.pcEnvironment);
+                sessionStorage.setItem(ORIGINAL_QUERY, window.location.search);
+
+                const authUrl = new URL(`https://login.${config.pcEnvironment}/oauth/authorize`);
+                authUrl.searchParams.set('response_type', 'code');
+                authUrl.searchParams.set('client_id', config.oauthClientId);
+                authUrl.searchParams.set('redirect_uri', redirectUri);
+                authUrl.searchParams.set('code_challenge', challenge);
+                authUrl.searchParams.set('code_challenge_method', 'S256');
+                authUrl.searchParams.set('state', state);
+
+                window.location.href = authUrl.toString();
+            }
+
+            // ── Server call ────────────────────────────────────────────────────────────
+
+            /**
+             * This function makes the api call to exchange the code for a Genesys access token which is then used to create a JWT that can
+             * be provided to he wxO chat.
+             */ 
+            async function callCreateJwt({ code, verifier, redirectUri, clientId, environment }) {
+                let result;
+                try {
+                    result = await fetch(CREATE_JWT_ENDPOINT, {
+                        method:  'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code, codeVerifier: verifier, redirectUri, clientId, environment }),
+                    });
+
+                    if (result.ok) {
+                        const data = await result.json();
+                        return data.jwt;
+                    }
+                } catch (error) {
+                    console.error(`${DEBUG_LABEL} Error exchanging code`, error);
+                }
+
+                return null;
+            }
+
+            // ── After JWT ──────────────────────────────────────────────────────────────
+
+            function handleJwt(jwt) {
+                if (!jwt) {
+                    console.error(`${DEBUG_LABEL} Failed to get a JWT!`);
+                } else {
+                    // Send the jwt if the dashboard is waiting or queue it up if it's not ready yet.
+                    if (!isWaiting) {
+                        sendConfig(jwt);
+                    } else {
+                        pendingJwt = jwt;
+                    }
+                }
+            }
+
+            // ── Boot ───────────────────────────────────────────────────────────────────
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', run);
+            } else {
+                run();
+            }
+        </script>
+    </body>
+</html>
