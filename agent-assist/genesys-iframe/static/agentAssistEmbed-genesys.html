@@ -57,6 +57,10 @@
         <script>
             const CREATE_JWT_ENDPOINT = '/createJwt';
 
+            // The origin of the server hosting agentAssistEmbed.html.
+            // Update this to match your deployment, e.g. 'https://assets.example.com'.
+            const HOST_URL = '';
+
             // Guard against open-redirect: only allow known Genesys environment hostnames.
             const ALLOWED_ENVIRONMENTS = new Set([
                 'mypurecloud.com',
@@ -140,7 +144,7 @@
                     newParams.set('waitForAuth', 'true');
                 }
 
-                const url = new URL('agentAssistEmbed.html', window.location.href);
+                const url = new URL('agentAssistEmbed.html', HOST_URL + '/');
                 url.search = newParams.toString();
 
                 iframeElement = document.createElement('iframe');

@@ -13,3 +13,11 @@ Reference implementation for the token-exchange server required when embed secur
 4. Start the server: `node src/server.js` (runs on port 3100)
 
 The server must be reachable over HTTPS at a public URL.
+
+## Hosting `agentAssistEmbed.html`
+
+`agentAssistEmbed.html` is **not** included in this sample project. Host it separately, then set `HOST_URL` at the top of `agentAssistEmbed-genesys.html` to its origin:
+
+```js
+const HOST_URL = 'https://assets.example.com';
+```
