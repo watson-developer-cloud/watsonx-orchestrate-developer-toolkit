@@ -137,7 +137,7 @@ async function handleCreateJwt(request, response) {
     }
 
     if (!ALLOWED_ORG_IDS.includes(org.id)) {
-        console.error('[createJwt] Organization ${org.id} is not authorized', me);
+        console.error(`[createJwt] Organization ${org.id} is not authorized`);
         response.status(403).json({ error: "This user's organization is not authorized" });
         return;
     }
@@ -148,7 +148,7 @@ async function handleCreateJwt(request, response) {
     // Return the jwt to the client.
     const identity = { user_id: me.id, jwt };
 
-    console.log(`[createJwt] Resolved agent: ${identity.id} (${identity.name}) org: ${identity.organizationId} (${identity.organizationName})`);
+    console.log(`[createJwt] Resolved agent: ${me.id} (${me.name}) org: ${org.id} (${org.name})`);
     response.json(identity);
 }
 

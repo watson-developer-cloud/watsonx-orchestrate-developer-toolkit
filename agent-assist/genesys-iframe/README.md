@@ -14,10 +14,6 @@ Reference implementation for the token-exchange server required when embed secur
 
 The server must be reachable over HTTPS at a public URL.
 
-## Hosting `agentAssistEmbed.html`
+## Configuring `agentAssistEmbed-genesys.html`
 
-`agentAssistEmbed.html` is **not** included in this sample project. Host it separately, then set `HOST_URL` at the top of `agentAssistEmbed-genesys.html` to its origin:
-
-```js
-const HOST_URL = 'https://assets.example.com';
-```
+Set `EMBED_HOST_URL` at the top of `agentAssistEmbed-genesys.html` to the origin where `agentAssistEmbed.html` is hosted. The correct path is inferred automatically based on the host. Refer to the [Genesys integration docs](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=platform-integration-genesys#configuring-agent-assist-mode) for the correct origin for your deployment.
