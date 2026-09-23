@@ -1,7 +1,7 @@
 # How to set up Elasticsearch from IBM Cloud and integrate it with Agent Knowledge in watsonx Orchestrate
-This is a documentation about how to set up Elasticsearch from IBM Cloud and create Agent Knowledge in watsonx Orchestrate using Elasticsearch index.
+This documentation explains how to set up Elasticsearch from IBM Cloud and create Agent Knowledge in watsonx Orchestrate using Elasticsearch index.
 
-## Table of contents:
+## Steps for setting up Elasticsearch
 * [Step 1: Provision an Elasticsearch instance on IBM Cloud](#step-1-provision-an-elasticsearch-instance-on-ibm-cloud)
 * [Step 2: Set up Kibana to connect to Elasticsearch](#step-2-set-up-kibana-to-connect-to-elasticsearch)
 * [Step 3: Create an Elasticsearch index (keyword-search)](#step-3-create-an-elasticsearch-index-keyword-search)
@@ -10,20 +10,20 @@ This is a documentation about how to set up Elasticsearch from IBM Cloud and cre
 
 ## Step 1: Provision an Elasticsearch instance on IBM Cloud
 * Create an [IBM Cloud account](https://cloud.ibm.com/registration) if you don't have one.
-* Provision a Databases for Elasticsearch instance from the [IBM Cloud catalog](https://cloud.ibm.com/catalog/databases-for-elasticsearch).  
+* Provision a Database for Elasticsearch instance from the [IBM Cloud catalog](https://cloud.ibm.com/catalog/databases-for-elasticsearch).
   **A platinum plan with at least 4GB RAM is required in order to use the advanced ML features,
   such as [Elastic Learned Sparse EncodeR (ELSER)](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html)**
 * Create a service credentials from the left-side menu and find the `hostname`, `port`, `username` and `password`.
-  The credentials will be used to connect to Kibana and watsonx Orchestrate at next steps. You can use admin userid and password as well.
-  Please refer to [this doc](https://cloud.ibm.com/docs/databases-for-elasticsearch?topic=databases-for-elasticsearch-user-management&interface=ui#user-management-elasticsearch-ibm-superuser) to learn more about different user roles.
+  Save the credentials to connect to Kibana and watsonx Orchestrate later. You can also use admin userid and password.
+  To learn more about different user roles, refer to [ibm_superuser role](https://cloud.ibm.com/docs/databases-for-elasticsearch?topic=databases-for-elasticsearch-user-management&interface=ui#user-management-elasticsearch-ibm-superuser).
 
 
 ## Step 2: Set up Kibana to connect to Elasticsearch
-* Install Docker so that you can pull the Kibana container image later. You can follow the detailed [docker install guide](./how_to_install_docker.md)
-* Create a kibana config folder, for example
+* Refer to [docker install guide](./how_to_install_docker.md) to install Docker to pull the Kibana container images.
+* Create a kibana config folder. For example,
   `mkdir -p ~/.kibana/config`
 * Download the certificate from the Elasticsearch instance overview page, and move the downloaded file to the kibana config folder
-* Under the kibana config folder, create a YAML file called `kibana.yml`. Inside the file, you need the following Kibana configuration settings:
+* In the kibana config folder, create a YAML file called `kibana.yml`. Do the following Kibana configuration settings in the yaml file:
     ```YAML
     elasticsearch.ssl.certificateAuthorities: "/usr/share/kibana/config/<your-certificate-file-name>"
     elasticsearch.username: "<username>"
@@ -32,9 +32,9 @@ This is a documentation about how to set up Elasticsearch from IBM Cloud and cre
     server.name: "kibana"
     server.host: "0.0.0.0"
     ```
-  Notes:
+  **Finding credentials and certificate path for Kibana Setup**:
     - Find the `hostname`, `port`, `username`, `password` from the service credentials created at Step 1
-    - `elasticsearch.ssl.certificateAuthorities` is the location where the kibana deployment will look for the certificate in the docker container.
+    - `elasticsearch.ssl.certificateAuthorities` is the location where the kibana deployment searches for the certificate in the docker container.
       `/usr/share/kibana/config/` is the default Kibana's config directory in the container
 
 * Verify the Elasticsearch instance endpoint and find its version
@@ -50,7 +50,7 @@ This is a documentation about how to set up Elasticsearch from IBM Cloud and cre
   -v <path_to_your_kibana_config_folder>:/usr/share/kibana/config \
   -p 5601:5601 docker.elastic.co/kibana/kibana:<kibana_version>
   ```
-  Once Kibana has connected to your Databases for Elasticsearch deployment and is running successfully, you will see the output in your terminal.
+  After Kibana connects to your Elasticsearch database, you can see a confirmation message in your terminal.
   ```
   [2024-01-02T16:43:29.378+00:00][INFO ][http.server.Kibana] http server running at http://0.0.0.0:5601
   [2024-01-02T16:46:13.777+00:00][INFO ][status] Kibana is now available
@@ -58,31 +58,32 @@ This is a documentation about how to set up Elasticsearch from IBM Cloud and cre
 
 ## Step 3: Create an Elasticsearch index (keyword-search)
 This step is to create an Elasticsearch index with default settings for quick testing and verification.
-With default settings, an Elasticsearch index does keyword search.
+An Elasticsearch index does keyword search with the default settings.
 
-* Open http://0.0.0.0:5601 in browser and log into Kibana using the `username` and `password` from the service credentials of the Elasticsearch instance
+* Log in to Kibana by opening http://0.0.0.0:5601 in your browser using the `username` and `password` from the service credentials of the Elasticsearch instance
 * Navigate to the indices page http://localhost:5601/app/enterprise_search/content/search_indices
-* Click on `Create a new index`, choose `Use the API`, and follow the steps there to create a new Elasticsearch index with default settings
-* Go to the overview page for your newly created index, follow the steps there to verify your Elasticsearch index.  
+* Click on `Create a new index`, choose `Use the API`, and follow the steps to create a new Elasticsearch index with default settings
+* Go to the overview page of your newly created index. Follow the steps to verify your Elasticsearch index.
   Notes:
-    * Generate an API key, and you will use the API key for authentication and authorization for this specific Elasticsearch index
+    * Generate an API key, and use the API key for authentication and authorization for this specific Elasticsearch index
     * Use your `hostname` and `port` from the service credentials of the Elasticsearch instance to build `ES_URL`
       ```bash 
       export ES_URL=https://<hostname:port>
       ```
     * Append `--cacert <path-to-your-cert>` to the cURL for SSL connection or append `--insecure` to the cURL commands to ignore the certificate
-    * If you are able to run the `Build your first search query` command at the last step, your Elasticsearch index has been set up successfully!
+    * If you can run the `Build your first search query` command in the final step, it means that your Elasticsearch index is set successfully.
 
 
 ## Step 4: Enable semantic search with ELSER
-This step is to enable semantic search using ELSER. Here are the tutorials from Elasticsearch doc:  
-ELSER v1: https://www.elastic.co/guide/en/elasticsearch/reference/8.10/semantic-search-elser.html  
+This step is to enable semantic search using ELSER. Refer to the following tutorials from Elasticsearch doc:
+ELSER v1: https://www.elastic.co/guide/en/elasticsearch/reference/8.10/semantic-search-elser.html
 ELSER v2: https://www.elastic.co/guide/en/elasticsearch/reference/current/semantic-search-elser.html
 
-**IMPORTANT NOTE**: ELSER v2 has become available since Elasticsearch 8.11. It is preferred to use ELSER v2 if it is available.
+**NOTE**: ELSER v2 is available since Elasticsearch 8.11. Using ELSER v2 is recommended.
 
-The following steps are based on ELSER v2 model:
+The following steps are meant for ELSER v2 model:
 ### Create environment variables for ES credentials
+- Create environment variables for ES credentials
   ```bash
   export ES_URL=https://<hostname:port>
   export ES_USER=<username>
@@ -92,9 +93,11 @@ The following steps are based on ELSER v2 model:
 You can find the credentials from the service credentials of your Elasticsearch instance.
 &nbsp;
 ### Enable ELSER model (v2)
-ELSER model is not enabled by default, but you can enable it in Kibana. Please follow the [download-deploy-elser instructions](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html#download-deploy-elser) to do it.
+- Enable ELSER model (v2)
 
-Note: `.elser_model_2_linux-x86_64` is an optimized version of the ELSER v2 model and is preferred to use if it is available. Otherwise, use `.elser_model_2` for the regular ELSER v2 model or `.elser_model_1` for ELSER v1.
+By default, ELSER model is not enabled. To enable it in Kibana, see [download-deploy-elser instructions](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html#download-deploy-elser).
+
+**NOTE**: `.elser_model_2_linux-x86_64`, an optimized version of the ELSER v2 model is recommended based on the availability. Else, use `.elser_model_2` for the regular ELSER v2 model or `.elser_model_1` for ELSER v1.
 
 
 ### Load data into Elasticsearch

@@ -1,5 +1,5 @@
-# How to set up watsonx Discovery (Elasticsearch) and integrate it with watsonx Orchestrate in CloudPak
-This is a documentation about how to set up watsonx Discovery (aka Elasticsearch on-prem) and integrate it with watsonx Orchestrate in CloudPak.
+# How to set up watsonx Discovery (Elasticsearch) and integrate it with watsonx Orchestrate in CloudPak for Data
+This document provides guidance on setting up watsonx Discovery (also known as Elasticsearch on-prem) and integrating it with watsonx Orchestrate in CloudPak for Data.
 
 ## Table of contents:
 * [Step 1: Install Elastic Cloud on Kubernetes(ECK) on CloudPak](#step-1-install-elastic-cloud-on-kubernetes-eck-in-cloudpak)
@@ -7,19 +7,17 @@ This is a documentation about how to set up watsonx Discovery (aka Elasticsearch
 
 
 ## Step 1: Install Elastic Cloud on Kubernetes(ECK) on CloudPak
-This step is about installing Elastic Cloud on Kubernetes (ECK) in CloudPak. 
 
-Before you begin, you will need:
-* Access to a CloudPak cluster
-* An ECK Enterprise orchestration license
+## Before you begin
+* You must have access to the CloudPak cluster
+* You must hold an ECK Enterprise orchestration license
 
 ### Log in to your CloudPak cluster
-* Log in to your Redhat OpenShift console using your admin credentials.
-* Find your login API token by clicking on `Copy login command` from the top right dropdown menu.
-* After displaying the token, copy the `Log in with this token` command, and run it from your terminal window.  
-  NOTE: If you don't have the OpenShift CLI (`oc`) installed, you can find the instructions to install it by clicking on 
-  the `Command line tools` from the top right :grey_question: dropdown menu.
-* If you see logs like below, you have successfully logged into your CloudPak cluster
+1. Log in to your Redhat OpenShift console using your admin credentials.
+2. From the top right dropdown menu, click **Copy login command** to find your login API token.
+3. Copy the `Log in with this token` command and run it from your terminal window.
+   If the OpenShift CLI (oc) is not installed on your system, you can find installation instructions by selecting **Command line tools** from the `:grey_question:` dropdown menu in the top-right corner.
+4. To ensure that you have successfully logged into your CloudPak cluster, check the logs. An example log:
   ```
   Logged into "https://api.wa24.cp.fyre.ibm.com:6443" as "kube:admin" using the token provided.
 
@@ -29,7 +27,7 @@ Before you begin, you will need:
   ```
 
 ### Install ECK with Elasticsearch cluster and Kibana
-* Create environment variables for the installation, for example, 
+* Create environment variables for the installation. For example,
   ```shell
   export ES_NAMESPACE="elastic"
   export STORAGECLASS="ocs-storagecluster-ceph-rbd"
@@ -86,7 +84,7 @@ Before you begin, you will need:
                     memory: 8Gi
   EOF
   ```  
-  NOTE: Learn more about configuring compute resources from [here](https://www.elastic.co/guide/en/cloud-on-k8s/2.9/k8s-managing-compute-resources.html).
+  NOTE: Learn more about configuring compute resources from [Managing compute resources](https://www.elastic.co/guide/en/cloud-on-k8s/2.9/k8s-managing-compute-resources.html).
   * Monitor Elasticsearch health and creation progress
     ```shell
     oc get Elasticsearch -n ${ES_NAMESPACE}
@@ -125,7 +123,7 @@ Before you begin, you will need:
               cpu: 2
   EOF
   ```  
-  NOTE: the container resources are configurable.
+  NOTE: The container resources are configurable.
   * Monitor Kibana health and creation progress
     ```shell
     oc get kibana -n ${ES_NAMESPACE}
@@ -135,15 +133,15 @@ Before you begin, you will need:
     oc get service ${ES_CLUSTER}-kb-http -n ${ES_NAMESPACE} 
     ```
 
-* Add an ECK enterprise license  
-  When you install the default distribution of ECK, you receive a Basic license. If you have a valid Enterprise 
+* Add an ECK enterprise license
+  When you install the default distribution of ECK, you receive a Basic license. If you have a valid Enterprise
   subscription or a trial license extension, you will receive a link to download a license as a JSON file. You can then
-  add the license to your ECK installation. 
+  add the license to your ECK installation.
   ```shell
   oc create secret generic eck-license --from-file=my-license-file.json -n elastic-system
   oc label secret eck-license "license.k8s.elastic.co/scope"=operator -n elastic-system
   ```
-  NOTE: Replace `my-license-file.json` with the JSON file you have downloaded. Learn more about adding a ECK license [here](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-licensing.html#k8s-add-license).
+  NOTE: Replace `my-license-file.json` with the JSON file you have downloaded. Learn more about adding a ECK license from [k8s-licensing](https://www.elastic.co/guide/en/cloud-on-k8s/current/k8s-licensing.html#k8s-add-license).
 
 ### Verify the installation 
 * Obtain the Elasticsearch credentials
@@ -160,8 +158,8 @@ Before you begin, you will need:
   If you can successfully log into Kibana and see the Kibana dashboard without any errors, your ECK installation is successful.
 
 ## Step 2: Enable semantic search with ELSER in Elasticsearch
-This step is to enable semantic search using ELSER. Here are the tutorials from Elasticsearch doc:  
-ELSER v1: https://www.elastic.co/guide/en/elasticsearch/reference/8.10/semantic-search-elser.html  
+This step is to enable semantic search using ELSER. Here are the tutorials from Elasticsearch doc:
+ELSER v1: https://www.elastic.co/guide/en/elasticsearch/reference/8.10/semantic-search-elser.html
 ELSER v2: https://www.elastic.co/guide/en/elasticsearch/reference/8.11/semantic-search-elser.html
 
 Note: ELSER v2 has become available since Elasticsearch 8.11. It is preferred to use ELSER v2 if it is available.
@@ -194,7 +192,7 @@ steps to create environment variables for later use.
   You have obtained `ES_USER` and `ES_PASSWORD` from [obtain-the-elasticsearch-credentials](#verify-the-installation) step.
 
 ### Enable ELSER model (v2)
-ELSER model is not enabled by default, but you can enable it in Kibana. Please follow the [download-deploy-elser instructions](https://www.elastic.co/guide/en/machine-learning/8.11/ml-nlp-elser.html#download-deploy-elser) to do it.
+ELSER model is not enabled by default. To enable it in Kibana, follow the [Download deploy ELSER instructions](https://www.elastic.co/guide/en/machine-learning/8.11/ml-nlp-elser.html#download-deploy-elser).
 
 Note: `.elser_model_2_linux-x86_64` is an optimized version of the ELSER v2 model and is preferred to use if it is available. Learn more about [inference-ingest-pipeline](https://www.elastic.co/guide/en/elasticsearch/reference/8.11/semantic-search-elser.html#inference-ingest-pipeline) from the tutorial.
 
@@ -242,7 +240,7 @@ In Kibana,
 Notes:
 * `search-wa-docs` will be your index name
 * `text_embedding` is the field that will keep ELSER output when data is ingested, and `sparse_vector` type is required for ELSER output field
-* `text` is the input filed for the inference processor. In the example dataset, the name of the input field is `text` which will be used by ELSER model to process.
+* `text` is the input field for the inference processor. In the example dataset, the name of the input field is `text` which will be used by ELSER model to process.
 * Learn more about [elser-mappings](https://www.elastic.co/guide/en/elasticsearch/reference/8.11/semantic-search-elser.html#elser-mappings) from the tutorial
 
 ### Create an ingest pipeline with an inference processor
@@ -289,8 +287,7 @@ Create the tokens from the text by reindexing the data through the inference pip
 
 ### Semantic search by using the text_expansion query
 To perform semantic search, use the `text_expansion` query, and provide the query text and the ELSER model ID.
-The example below uses the query text "How to set up custom extension?", the `text_embedding` field contains
-the generated ELSER output:
+The following example uses the query text "How to set up custom extension?" and the `text_embedding` field contains the generated ELSER output:
   ```bash
   curl -X GET "${ES_URL}/search-wa-docs/_search?pretty" -u "${ES_USER}:${ES_PASSWORD}" \
   -H "Content-Type: application/json" --cacert "${ES_CACERT}" -d'

@@ -1,26 +1,26 @@
 # How to set up and use the web crawler in Elasticsearch
-This is a documentation about how to set up and use the web crawler in Elasticsearch and connect it to Agent Knowledge in watsonx Orchestrate.
+This documentation explains how to set up and use the web crawler in Elasticsearch and connect it to Agent Knowledge in watsonx Orchestrate.
 
-## Tabel of contents:
+## Table of contents:
 * [Step 1: Set up Enterprise Search to enable the web crawler in Elasticsearch](#step-1-set-up-enterprise-search-to-enable-the-web-crawler-in-elasticsearch)
 * [Step 2: Create and configure a web crawler in Elasticsearch](#step-2-create-and-configure-a-web-crawler-in-elasticsearch)
 * [Step 3: Build an ELSER ingest pipeline with a chunking processor](#step-3-build-an-elser-ingest-pipeline-with-a-chunking-processor)
 * [Step 4: Connect a web crawler index to Agent Knowledge in watsonx Orchestrate](#step-4-connect-a-web-crawler-index-to-agent-knowledge-in-watsonx-orchestrate)
 
 ## Step 1: Set up Enterprise Search to enable the web crawler in Elasticsearch
-Before you start, you will need to install and set up your Elasticsearch cluster,
-* For Elasticsearch on IBM Cloud, please refer to [ICD-elasticsearch-install-and-setup](../../docs/elasticsearch-install-and-setup/ICD_Elasticsearch_install_and_setup.md) for more details.
-* For Elasticsearch (watsonx Discovery) on CloudPak, please refer to [watsonx-discovery-install-and-setup](../../docs/elasticsearch-install-and-setup/watsonx_discovery_install_and_setup.md) for more details.
+Before you start, you must install and set up your Elasticsearch cluster.
+- For Elasticsearch on IBM Cloud, refer to [ICD-elasticsearch-install-and-setup](../../docs/elasticsearch-install-and-setup/ICD_Elasticsearch_install_and_setup.md).
+- For Elasticsearch (watsonx Discovery) on CloudPak, refer to [watsonx-discovery-install-and-setup](../../docs/elasticsearch-install-and-setup/watsonx_discovery_install_and_setup.md).
 
 ### Set up Enterprise Search for Elasticsearch on IBM Cloud 
 Assuming you have installed Kibana locally following [ICD-elasticsearch-install-and-setup](../../docs/elasticsearch-install-and-setup/ICD_Elasticsearch_install_and_setup.md), 
 follow these steps to set up Enterprise Search in Elasticsearch:  
-**NOTE: Enterprise Search requires at least 4GB of memory, so please make sure you have enough memory allocated to your Docker Engine.**
+**NOTE**: Enterprise Search requires a minimum of 4GB of memory. Ensure that your Docker Engine has sufficient memory allocated to meet this requirement.
 * Create a docker network
     ```shell
     docker network create elastic
     ```
-  NOTE: `elastic` will be the name of your docker network.
+  **NOTE**: `elastic` is the name of your docker network.
 
 
 * Restart Kibana within a network and with enterprise search host
@@ -28,8 +28,8 @@ follow these steps to set up Enterprise Search in Elasticsearch:
   KIBANA_CONFIG_FOLDER=<path-to-your-kibana-config-folder>
   KIBANA_VERSION=<kibana-version>
   ```
-  NOTE: `KIBANA_VERSION` needs to be compatible with the Elasticsearch version. It can be the same as the Elasticsearch version.
-  Learn more about the compatibility with Elasticsearch from [here](https://www.elastic.co/support/matrix#matrix_compatibility)
+  **NOTE**: `KIBANA_VERSION` must be compatible with the Elasticsearch version. It can be the same as the Elasticsearch version.
+  To learn more about the compatibility with Elasticsearch, see [Matrix compatibility](https://www.elastic.co/support/matrix#matrix_compatibility).
   ```shell
   docker run -it --name kibana --network elastic --rm \
   -v ${KIBANA_CONFIG_FOLDER}:/usr/share/kibana/config \
@@ -175,37 +175,35 @@ you can follow these steps to set up Enterprise Search:
   * Navigate to the `Search Overview` page https://localhost:5601/app/enterprise_search/overview.
   * If you can see `Web Crawler` available as an option to ingest content, your Enterprise Search has been set up successfully.
 
-## Step 2: Create and configure a web crawler in Elasticsearch 
-* In Kibana, navigate to the `Search Overview` page by clicking on `Search` from the home page, and you will see `Web Crawler` 
-as an option to ingest content. Choose `Web Crawler` option, click on `Start`, and follow the steps to create a Web Crawler index. 
+## Step 2: Create and configure a web crawler in Elasticsearch
+In Kibana,
+1. From the home page, click **Search**.
+2. Go to the **Search Overview**.
+3. Choose **Web Crawler** to ingest content.
+4.  Click on **Start**
+5. Follow the steps to create a Web Crawler index.
 
+6. On the `Manage Domains` tab, add a domain. For example, `https://www.nationalparks.org`.
 
-* On the `Manage Domains` tab, add a domain, for example, `https://www.nationalparks.org`.  
-  NOTE: If the domain you are crawling has pages that require authentication, you can manage the authentication settings 
-  in the Kibana UI. The web crawler supports two authentication methods:
-  1. Basic authentication (username and password)
-  2. Authentication header (e.g. bearer tokens)  
-  
-  Please refer to [the Elastic documentation](https://www.elastic.co/guide/en/enterprise-search/current/crawler-managing.html#crawler-managing-authentication) 
-  for more details about Authentication. 
+7. If the domain you are crawling includes pages that require authentication, you can configure the necessary authentication settings directly through the Kibana UI. The web crawler supports two authentication methods:
+   - Basic authentication (username and password)
+   - Authentication header (e.g. bearer tokens)
 
+   For more details about authentication, see [the Elastic documentation](https://www.elastic.co/guide/en/enterprise-search/current/crawler-managing.html#crawler-managing-authentication).
 
-* Add an entry point under the domain `Entry points` tab, for example, `https://www.nationalparks.org/explore/parks`
+8. From the domain **Entry point** tab, add an entry point. For example, `https://www.nationalparks.org/explore/parks`.
 
+9. From the domain **Crawl Rules** tab, add two additional rules as per the image.
+   <img src="assets/add_crawl_rules_for_web_crawler.png" width="802" height="309" />
+   To learn more about crawl rules, see [Web crawler reference](https://www.elastic.co/guide/en/app-search/current/web-crawler-reference.html#web-crawler-reference-crawl-rule).
 
-* From the domain `Crawl Rules` tab, add two additional rules like below:  
-  <img src="assets/add_crawl_rules_for_web_crawler.png" width="802" height="309" />  
-  NOTE: The two rules tell the web crawler to only crawl URLs that begin with https://www.nationalparks.org/explore/parks. 
-  Learn more about crawl rules from [here](https://www.elastic.co/guide/en/app-search/current/web-crawler-reference.html#web-crawler-reference-crawl-rule)
+**Important**: Avoid starting the web crawler by clicking `Crawl` in the top-right corner, as this will trigger ingestion using the default index mappings and pipeline.
 
-
-* Don't start the web crawler (by clicking on `Crawl` in the upper right corner) yet, because that would cause it to 
-  start ingesting with the default index mappings and pipeline. Instead, continue on to the next section to build a 
-  custom ingest pipeline before starting the crawl. 
+To configure a custom ingest pipeline before initiating the crawl process, see [Build an ELSER ingest pipeline with a chunking processor](#step-3-build-an-elser-ingest-pipeline-with-a-chunking-processor).
 
 
 ## Step 3: Build an ELSER ingest pipeline with a chunking processor
-To use ELSER for text expansion queries on chunked texts, you need to build an ingest pipeline with a chunking processor 
+To use ELSER for text expansion queries on chunked texts, you must build an ingest pipeline with a chunking processor
 that uses the ELSER model.
 
 NOTE: ELSER model is not enabled by default, and you can enable it in Kibana, following the [download-deploy-elser instructions](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html#download-deploy-elser).
@@ -240,24 +238,22 @@ The above command will update the index mappings to specify `passages` to be `ne
 NOTE: `sparse_vector` type is for the ELSER v2 model. For ELSER v1, please use `rank_features` type. ELSER v2 has become available since Elasticsearch 8.11. It is preferred to use ELSER v2 if it is avaiable. Learn more about ELSER v2 from [here](https://www.elastic.co/guide/en/machine-learning/current/ml-nlp-elser.html)
 
 ### Build a custom ingest pipeline with two processors
-Now you can build a custom ingest pipeline for your web crawler index on Kibana, following these steps:
+You can build a custom ingest pipeline for your web crawler index on Kibana with the following steps:
 
-* Open http://localhost:5601 or https://localhost:5601 (for Kibana port-forwarded from CloudPak) and log into Kibana with your Elasticsearch credentials. Navigate to the indices page
-  from the left-side menu via `Content` under `Search`, find your web crawler index, and click on it to go to the index page.
+1. Open http://localhost:5601 or https://localhost:5601 (for Kibana port-forwarded from CloudPak) and log into Kibana with your Elasticsearch credentials.
+2. From the left-side menu, click **Search** > **Content**.
+3. Select your web crawler index.
+4. Click the selected index to go to the index page.
 
+5. On the **Pipelines** tab, click **Copy and customize** to create a custom ingest pipeline. This generates a new ingest pipeline named `<your-web-crawler-index-name>@custom`.  For example,
+  <img src="assets/web_crawler_ingest_pipeline_custom.png" width="955" height="340" />.
 
-* Under `Pipelines` tab, click on `Copy and customize` to create a custom ingest pipeline, and you will see a new ingest pipeline named `<your-web-crawler-index-name>@custom`.  
-  For example,  
-  <img src="assets/web_crawler_ingest_pipeline_custom.png" width="955" height="340" />
+6. Click **Edit pipeline** >  **Manage** > **Edit**.
 
-
-* Click on `edit pipeline` and then `Manage` -> `Edit`, it will take you to the ingest pipeline `Edit` page 
-  where you can add processors to the pipeline.
-
-
-* Add a `Script` processor for chunking  
-  In the ingest pipeline page, click on `Add a processor`, choose `Script` processor, and then add [a painless script](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html) to the `Source` field.  
-  For example,  
+7. In the ingest pipeline **Edit** page, click **Add a processor**.
+8. Choose **Script** processor.
+9. In the **Source** field, add [a painless script](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-scripting-painless.html). Refer to the  example image:
+ For example,
   <img src="assets/web_crawler_script_processor.png" width="577" height="718" />
 
   ```Groovy
@@ -279,8 +275,8 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
           }
   }
   ```
-  The above script splits `body_content` into sentences using regex and then combines sentences into passages with 
-  a `model_limit` parameter to control the character length of each passage. `model_limit` is configured in `Parameters` field, for example,  
+  The above script splits `body_content` into sentences using regex and then combines sentences into passages with
+  a `model_limit` parameter to control the character length of each passage. `model_limit` is configured in `Parameters` field, for example,
   ```json
   {
     "model_limit": 2048
@@ -291,7 +287,7 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
   Depending on how you want to chunk the `body_content` and which sematic search model you want to use, you may need to use 
   different `model_limit` values to optimize the chunking processor.  
 
-  #### (Optional) Considerations for customizing the chunking processor
+  #### Examples for painless scripts
   You can update the above script to customize the chunking process. 
   * Include more metadata to the chunked passages  
     For example, the `passage` definition statement can be updated. The original `passage` definition in the above script is 
@@ -346,7 +342,7 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
         i = j;
     }
     ```
-    This script splits the `body_content` into sentences using regex and combines them into `passages`. The maximum number of characters in each paggase is controlled by the `model_limit` parameter. There is a overlapping between two adjacent passages, and it is controled by the `overlap_percentage` parameter. So, `model_limit` and `overlap_percentage` need to be configured in the `Parameters` field, for example, 
+    This script splits the `body_content` into sentences using regex and combines them into `passages`. The maximum number of characters in each passage is controlled by the `model_limit` parameter. The overlapping between two adjacent passages is controlled by the `overlap_percentage` parameter. So, `model_limit` and `overlap_percentage` need to be configured in the `Parameters` field. For example,
     ```json
     {
       "model_limit": 2048,
@@ -398,12 +394,10 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
   * `_ingest._value.sparse` expects a `sparse` field for each chunk object as the target field.
   * `_ingest._value.text` expects a `text` field for each chunk object as the input field.
   * `"_ingest._value.text": "text_field"` means ELSER uses `text_field` as the input field. You may need to update it if your ELSER input field is different.
-  * `search-crawler-with-chunking@custom` is the name of the ingest pipeline. You need to update it with your ingest pipeline name.  
+  * `search-crawler-with-chunking@custom` is the name of the ingest pipeline. You need to update it with your ingest pipeline name.
   
 
-  > ⛔️
-  > **Caution**  
-  > Don't forget to click on `Save pipeline` to save your changes!
+  Click `Save pipeline` to save your changes.
 
 
 * Start your web crawler and monitor its progress  
@@ -471,9 +465,9 @@ Now you can build a custom ingest pipeline for your web crawler index on Kibana,
 
 ## Step 4: Connect a web crawler index to Agent Knowledge in watsonx Orchestrate
 
-To configure your web crawler index for Agent Knowledge in watsonx Orchestrate, you need to follow the documentation for [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository).  
+To configure your web crawler index for Agent Knowledge in watsonx Orchestrate, you need to follow the documentation for [Connecting to an Elasticsearch content repository](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=agents-connecting-elasticsearch-content-repository).
 
-Importantly, you need to use the right fields to configure your result content (In this guide, use `title` for Title and `text` for Body). You also need to use the right query body to make Knowledge work with your web crawler index. Here is an screenshot of the configuration:
+**IMPORTANT** You must use the right fields to configure your result content (In this guide, use `title` for Title and `text` for Body). You must use the right query body to make Knowledge work with your web crawler index. Refer to the following example configuration image:
 
 <img src="assets/use_nested_query_in_search_integration_settings.png" width="512" height="641">
 

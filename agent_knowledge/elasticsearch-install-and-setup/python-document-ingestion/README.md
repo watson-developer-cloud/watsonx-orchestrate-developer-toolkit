@@ -1,4 +1,5 @@
 # Working with PDF and Office Documents in Elasticsearch
+This document guides how to work with PDF and Office documents in Elasticsearch.
 
 ## Table of contents:
 * [Step 1: Create a python virtual environment and upgrade pip](#step-1-create-a-python-virtual-environment-and-upgrade-pip)
@@ -9,18 +10,18 @@
 
 ## Pre-requisites:
 
-1. The following tutorial assumes there exists a folder of documents that you would like to index into Elasticsearch. These can be PDF, Microsoft Office, OpenOffice, HTML, Text files etc... See full list of supported types [here](https://tika.apache.org/2.9.1/formats.html) 
+1. The following tutorial assumes there exists a folder of documents that you would like to index into Elasticsearch. These can be PDF, Microsoft Office, OpenOffice, HTML, Text files and so on. To know the full list of supported types, see [Supported Document Formats](https://tika.apache.org/2.9.1/formats.html).
 
-	Optional: If using IBM COS or other Cloud Object Storage for your files, you can follow instructions to use [s3fs](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-s3fs) or [rclone](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-rclone) to synchronize your data to a local mounted filesystem
+	**Optional**: If you use IBM COS or other Cloud Object Storage for your files, follow the instructions to use [s3fs](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-s3fs) or [rclone](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-rclone) to synchronize your data to a local mounted filesystem.
 
-2. You will need a working install of [python](https://www.python.org/downloads/) and Java 8+ on your machine.
+2. Ensure that your system has a working installation of [python](https://www.python.org/downloads/) and Java 8+ on your machine.
 
 ## Introduction
 
 Before you start, ensure you have set up your Elasticsearch cluster:
 
-* For Elasticsearch on IBM Cloud, please refer to [ICD-elasticsearch-install-and-setup](./ICD_Elasticsearch_install_and_setup.md) for more details.
-* For Elasticsearch (watsonx Discovery) on CloudPak, please refer to [watsonx-discovery-install-and-setup](./watsonx_discovery_install_and_setup.md) for more details.
+* For Elasticsearch on IBM Cloud, refer to [ICD-elasticsearch-install-and-setup](./ICD_Elasticsearch_install_and_setup.md) for more details.
+* For Elasticsearch (watsonx Discovery) on CloudPak, refer to [watsonx-discovery-install-and-setup](./watsonx_discovery_install_and_setup.md).
 
 
 ### Step 1: Create a python virtual environment and upgrade pip
@@ -36,7 +37,7 @@ python3 -m pip install --upgrade pip
 
 ### Step 2: Create all the necessary environment variables
 
-The `ES_INDEX_NAME` and `ES_PIPELINE_NAME` variables can be whatever you would like to name your index and ingestion pipeline for use throughout this process/guide as references in various steps below.
+You must assign names to your index and ingestion pipeline in `ES_INDEX_NAME` and `ES_PIPELINE_NAME` variables, as these are referenced throughout the guide in various steps.
 
   ```bash
   export ES_URL=https://<hostname:port>
@@ -50,21 +51,19 @@ The `ES_INDEX_NAME` and `ES_PIPELINE_NAME` variables can be whatever you would l
 
 ### Step 3: Create an ELSER ingest pipeline with an inference processor
 
-If you already have an existing pipeline in your Elasticsearch instance that uses an inference processor with ELSER against the "text" field, you can choose to reuse that and skip creation of a new pipeline.
+If your Elasticsearch instance already has a pipeline configured with an inference processor using ELSER on the `text` field, you can choose to reuse it and skip creating a new pipeline.
 
-If not, please continue reading below regarding the creation of a new pipeline.
+To use ELSER for text expansion queries on chunked texts, you must build a pipeline with an inference processor that uses the ELSER model.
 
-To use ELSER for text expansion queries on chunked texts, you need to build a pipeline with an inference processor that uses the ELSER model.
-
-NOTE: ELSER model is not enabled by default, and you can enable it in Kibana, following the [download-deploy-elser instructions](https://www.elastic.co/guide/en/machine-learning/8.11/ml-nlp-elser.html#download-deploy-elser).
+**Note**: ELSER model is not enabled by default. You can enable it in Kibana by following the [download-deploy-elser instructions](https://www.elastic.co/guide/en/machine-learning/8.11/ml-nlp-elser.html#download-deploy-elser).
 
 Depending on your Elasticsearch version, you can choose to deploy either ELSER v1 or v2 model. The following steps and commands are based on ELSER v1 model, but you can find what change is needed for ELSER v2 in the notes of each step. 
 
-You will be able to reference this pipeline in the next few steps as a part of indexing the documents of choice. It transforms the "text" field using the ELSER model and produces the terms along with weights as a sparse vector in the "ml" field at index time.
+You can reference this pipeline in the upcoming steps as part of the document indexing process. It applies the ELSER model to transform the `text` field, generating the terms along with weights as a sparse vector in the `ml` field at index time.
 
-Learn more about [inference-ingest-pipeline](https://www.elastic.co/guide/en/elasticsearch/reference/8.11/semantic-search-elser.html#inference-ingest-pipeline) from the tutorial 
+Learn more about [inference-ingest-pipeline](https://www.elastic.co/guide/en/elasticsearch/reference/8.11/semantic-search-elser.html#inference-ingest-pipeline) from the tutorial.
 
-Create the pipeline using the command below: 
+Create the pipeline using the following command:
 
 ```bash
 curl -X PUT "${ES_URL}/_ingest/pipeline/${ES_PIPELINE_NAME}?pretty" -u "${ES_USER}:${ES_PASSWORD}" \
@@ -156,7 +155,7 @@ If you'd like to update the number of documents to send per request in the Elast
 
 Your documents are now available in the index, ready for searching and querying. Follow the steps outlined below to use this index for Agent Knowledge in watsonx Orchestrate. 
 
-**NOTE**: There are some example documents available [here](../assets/sample_pdf_docs), if you would like to test the setup.
+Refer to [Example documents](../assets/sample_pdf_docs) to test the setup.
 
 ### Step 5: Connecting to Agent Knowledge in watsonx Orchestrate
 

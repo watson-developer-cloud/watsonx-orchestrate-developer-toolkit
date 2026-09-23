@@ -1,31 +1,32 @@
-# How to set up and use 3rd-party text embeddings for dense vector search in Elasticsearch
-This guide demonstrates how to deploy and use a text embedding model in Elasticsearch. The model will generate vector representations for text, enabling vector similarity (k-nearest neighbours) search.
+# How to set up and use third party text embeddings for dense vector search in Elasticsearch
+This guide outlines the deployment and usage of a text embedding model within Elasticsearch. The model generates vector representations for text, enabling k-nearest neighbors (KNN) search based on vector similarity.
 
 ## Set up Elasticsearch
 
-### Elasticsearch from IBM Cloud
-If you are using Elasticsearch from IBM Cloud, please refer to [this guide](./ICD_Elasticsearch_install_and_setup.md) first to create an Elasticsearch instance and set up Kibana if you haven't already.
+### Set up Elasticsearch on IBM Cloud
+If you are using Elasticsearch from IBM Cloud, refer to [Install guide](./ICD_Elasticsearch_install_and_setup.md) to create an Elasticsearch instance and set up Kibana.
 
-### Elasticsearch on CloudPak
-Alternatively, if you want to install Elasticsearch on Kubernetes (ECK) in CloudPak, you need to follow [this guide](./watsonx_discovery_install_and_setup.md) first to set up Elasticsearch and Kibana. You can skip [Enable ELSER model (v2)](./watsonx_discovery_install_and_setup.md#enable-elser-model-v2) and any section beyond that in the guide.
+### Set up Elasticsearch on IBM CloudPak for Data
+If you want to set up Elasticsearch on Kubernetes (ECK) on CloudPak for Data, refer to [Install guide](./watsonx_discovery_install_and_setup.md) to set up Elasticsearch and Kibana. You can skip [Enable ELSER model (v2)](./watsonx_discovery_install_and_setup.md#enable-elser-model-v2) and other following sections in the guide.
 
 ## Install the eland library
-Run the command below to install the [eland](https://github.com/elastic/eland) library.
+Run the following command to install the [eland](https://github.com/elastic/eland) library.
 ```bash
 python -m pip install "eland[pytorch]"
 ```
-This library allows us to pull and deploy a 3rd-party text embedding model to our Elasticsearch instance.
+This library enables the retrieval and deployment of a third-party text embedding model to your Elasticsearch instance.
 
-> CAUTION: Open source and 3rd party models are not in scope of IBM or Elastic indemnity clauses. Customers must accept relevant terms and conditions to choose or bring their own models. Additionally, IBM has not assessed Elastic's supported multi-lingual models so any use of Elastic-supported models should be understood thoroughly both with respect to the terms of use for those models and the terms of use of all of the data that was used to train those models.
+**RESTRICTION**:
+Open-source and third-party models are not covered under IBM or Elastic's indemnification policies. Customers must review and accept the applicable terms and conditions when selecting or integrating their own models. Additionally, IBM has not evaluated Elastic-supported multilingual models. Hence, you must thoroughly understand both the usage terms of these models and the licensing and data policies associated with the datasets.
 
 NOTE:
-* As of the time this documentation was written, `eland` only supports Python 3.8, 3.9, and 3.10. Please refer to the eland library [compatibility section](https://github.com/elastic/eland?tab=readme-ov-file#compatibility) to make sure you're using compatible Python and Elasticsearch versions.
+* At the time of writing, the eland library supports only Python versions 3.8, 3.9, and 3.10. Refer to the eland library [compatibility section](https://github.com/elastic/eland?tab=readme-ov-file#compatibility) to ensure your Python and Elasticsearch versions are compatible.
 * If you run into compatibility issues during installation, try to specify a version of `eland[pytorch]` that is compatible with your Elasticsearch version.
 
-NOTE: You can also use eland without installing the library in case you run into any issues with the library. This can be done by using the docker image provided [here](https://github.com/elastic/eland?tab=readme-ov-file#docker).
+NOTE: You can also use eland without installing the library in case you run into any issues with the library. This can be done by using the [Docker image](https://github.com/elastic/eland?tab=readme-ov-file#docker).
 
 ## Create environment variables for ES credentials
-Feel free to customize the names of the `ES_SOURCE_INDEX_NAME`, `ES_EMBEDDING_INDEX_NAME` and `ES_PIPELINE_NAME` variables below. These names will serve as references for your source index, embedding index, and ingestion pipeline throughout this guide.
+Customize the names of the `ES_SOURCE_INDEX_NAME`, `ES_EMBEDDING_INDEX_NAME` and `ES_PIPELINE_NAME` variables. These names serve as references for your source index, embedding index, and ingestion pipeline throughout this guide.
   ```bash
   export ES_URL=https://<hostname:port>
   export ES_USER=<username>
@@ -37,7 +38,7 @@ Feel free to customize the names of the `ES_SOURCE_INDEX_NAME`, `ES_EMBEDDING_IN
   ```  
 You can find the credentials from the service credentials of your Elasticsearch instance.
 ## Pull and deploy an embedding model
-Run the command below to pull your desired model from the [Huggingface Models Hub](https://huggingface.co/models) and deploy it on your Elasticsearch instance:
+Run the following command to pull your desired model from the [Huggingface Models Hub](https://huggingface.co/models) and deploy it on your Elasticsearch instance:
 ```bash
 eland_import_hub_model \
   --url $ES_URL \
@@ -47,10 +48,15 @@ eland_import_hub_model \
   --start
 ```
 
-In this example, we are using the `multilingual-e5-small` model which is a multi-lingual model that supports text embeddings in 100 languages. You can read more about this model [here](https://huggingface.co/intfloat/multilingual-e5-small)
+In the above example, `multilingual-e5-small` model which is a multi-lingual model that supports text embeddings in 100 languages is taken for reference. For more information on this model, see [Multilingual-E5-small](https://huggingface.co/intfloat/multilingual-e5-small).
 
 ## Synchronize your deployed model
-Go to the **Machine Learning > Trained Models** page http://localhost:5601/app/ml/trained_models and synchronize your trained models. A warning message is displayed at the top of the page that says "ML job and trained model synchronization required". Follow the link to "Synchronize your jobs and trained models." Then click Synchronize.
+To synchronize your deployed model:
+1. Go to  http://localhost:5601/app/ml/trained_models page.
+2. Click **Machine Learning** > **Trained Models**.
+3. A warning message, "ML job and trained model synchronization required" is displayed at the top of the page.
+4. Click the link "Synchronize your jobs and trained models".
+5. Click **Synchronize**.
 
 <img src="assets/synchronize_trained_model.png"/>
 
@@ -120,7 +126,7 @@ curl -X PUT "${ES_URL}/_ingest/pipeline/${ES_PIPELINE_NAME}" \
 }'
 ```
 
-You can verify that the ingest pipeline was created by locating it in the list of your ingest pipelines on Kibana http://localhost:5601/app/management/ingest/ingest_pipelines
+Go to http://localhost:5601/app/management/ingest/ingest_pipelines page and verify that the ingest pipeline was created by locating it in the list of your ingest pipelines on Kibana.
 
 ## Create a mapping for the destination index containing the embeddings
 Then run the command below to create the mappings of the destination index called `ES_EMBEDDING_INDEX_NAME`:
@@ -223,7 +229,7 @@ curl -X GET "${ES_URL}/${ES_EMBEDDING_INDEX_NAME}/_search" \
 }'
 ```
 
-## What's next?
+## What to do next
 Now that you've successfully deployed your text embedding model in Elasticsearch, see [Elasticsearch integration with Agent Knowledge in watsonx Orchestrate](README.md#elasticsearch-integration-with-agent-knowledge-in-watsonx-orchestrate) to set up Agent Knowledge using your Elasticsearch index.
 
 Here is an example Elasticsearch query body:
