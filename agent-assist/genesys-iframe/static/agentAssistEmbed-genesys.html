@@ -57,9 +57,17 @@
         <script>
             const CREATE_JWT_ENDPOINT = '/createJwt';
 
-            // The origin of the server hosting agentAssistEmbed.html.
-            // Update this to match your deployment, e.g. 'https://assets.example.com'.
-            const HOST_URL = '';
+            // The origin that hosts agentAssistEmbed.html.
+            // Use either your wxO cluster origin or the IBM CDN origin.
+            const EMBED_HOST_URL = '';
+
+            const CDN_ORIGIN =
+                'https://chat.global.watson-orchestrate.ibmappdomain.cloud';
+
+            const EMBED_HOST_PATH =
+                EMBED_HOST_URL === CDN_ORIGIN
+                    ? '/agentAssist'
+                    : '/wxochat';
 
             // Guard against open-redirect: only allow known Genesys environment hostnames.
             const ALLOWED_ENVIRONMENTS = new Set([
@@ -144,7 +152,12 @@
                     newParams.set('waitForAuth', 'true');
                 }
 
-                const url = new URL('agentAssistEmbed.html', HOST_URL + '/');
+                if (!EMBED_HOST_URL) {
+                    console.error(`${DEBUG_LABEL} EMBED_HOST_URL must be configured.`);
+                    return;
+                }
+
+                const url = new URL(`${EMBED_HOST_URL}${EMBED_HOST_PATH}/agentAssistEmbed.html`);
                 url.search = newParams.toString();
 
                 iframeElement = document.createElement('iframe');
@@ -158,7 +171,13 @@
              * Sends the jwt to the dashboard.
              */
             function sendConfig(jwt) {
-                iframeElement.contentWindow.postMessage({ type: 'wxOAgentAssist:configLoaded', config: { jwt } }, window.location.origin);
+                iframeElement.contentWindow.postMessage(
+                    { 
+                        type: 'wxOAgentAssist:configLoaded', 
+                        config: { jwt } 
+                    },
+                    new URL(EMBED_HOST_URL).origin
+                );
             }
 
             /**
@@ -267,7 +286,7 @@
                     console.error(`${DEBUG_LABEL} Failed to get a JWT!`);
                 } else {
                     // Send the jwt if the dashboard is waiting or queue it up if it's not ready yet.
-                    if (!isWaiting) {
+                    if (isWaiting) {
                         sendConfig(jwt);
                     } else {
                         pendingJwt = jwt;
