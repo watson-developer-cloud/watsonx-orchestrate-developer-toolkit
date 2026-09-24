@@ -13,3 +13,7 @@ Reference implementation for the token-exchange server required when embed secur
 4. Start the server: `node src/server.js` (runs on port 3100)
 
 The server must be reachable over HTTPS at a public URL.
+
+## Configuring `agentAssistEmbed-genesys.html`
+
+Set `EMBED_HOST_URL` at the top of `agentAssistEmbed-genesys.html` to the origin where `agentAssistEmbed.html` is hosted. The correct path is inferred automatically based on the host. Refer to the [Genesys integration docs](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=platform-integration-genesys#configuring-agent-assist-mode) for the correct origin for your deployment.
