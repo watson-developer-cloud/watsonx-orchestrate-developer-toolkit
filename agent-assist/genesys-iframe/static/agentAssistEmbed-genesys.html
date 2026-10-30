@@ -22,6 +22,7 @@
         - oauthClientId: The OAuth client id configured in Genesys.
         - pcEnvironment: The environment being used and from which to request authorization. Only environments in the
           allowed list are permitted.
+        - hostUrl / embedHost (optional): The origin hosting agentAssistEmbed.html (overrides EMBED_HOST_URL).
 
     The file also expects the following parameters which are not used directly here but are passed to the dashboard.
 
@@ -57,6 +58,13 @@
         <script>
             const CREATE_JWT_ENDPOINT = '/createJwt';
 
+            // The default origin that hosts agentAssistEmbed.html (can be overridden by ?hostUrl= or ?embedHost= query param).
+            // Use either your wxO cluster origin or the IBM CDN origin.
+            const EMBED_HOST_URL = '';
+
+            const CDN_ORIGIN =
+                'https://chat.global.watson-orchestrate.ibmappdomain.cloud';
+
             // Guard against open-redirect: only allow known Genesys environment hostnames.
             const ALLOWED_ENVIRONMENTS = new Set([
                 'mypurecloud.com',
@@ -81,9 +89,9 @@
 
             // Indicates if we've received our new jwt but it hasn't been sent to the dashboard yet.
             let pendingJwt = null;
-            // Indicates if the dashboard is waiting for a jwt token.
-            let isWaiting = false;
+            let iframeLoaded = false;
             let iframeElement = null;
+            let activeEmbedHost = '';
 
             // ── PKCE helpers (Web Crypto API — no external dependency) ─────────────────
 
@@ -119,10 +127,26 @@
              * This will inject the dashboard iframe into the document.
              */
             function insertDashboard(originalQuery, waitForAuth) {
+                const queryParams = new URLSearchParams(originalQuery);
+                const hostOverride = queryParams.get('hostUrl') || queryParams.get('embedHost');
+                const targetHostUrl = (hostOverride || EMBED_HOST_URL || '').replace(/\/$/, '');
+
+                if (!targetHostUrl) {
+                    console.error(`${DEBUG_LABEL} EMBED_HOST_URL must be configured or provided via hostUrl query parameter.`);
+                    return;
+                }
+
+                activeEmbedHost = targetHostUrl;
+                const embedHostPath = targetHostUrl === CDN_ORIGIN ? '/agentAssist' : '/wxochat';
+                const expectedOrigin = new URL(targetHostUrl).origin;
+
                 window.addEventListener('message', (event) => {
                     if (event.data === 'wxOAgentAssist:waitingForAuth') {
-                        console.log(`${DEBUG_LABEL} Got event`, event);
-                        isWaiting = true;
+                        if (event.origin !== expectedOrigin) {
+                            console.warn(`${DEBUG_LABEL} Ignoring waitingForAuth from unexpected origin: ${event.origin}`);
+                            return;
+                        }
+                        console.log(`${DEBUG_LABEL} Got waitingForAuth event`, event);
                         if (pendingJwt) {
                             sendConfig(pendingJwt);
                             pendingJwt = null;
@@ -140,12 +164,21 @@
                     newParams.set('waitForAuth', 'true');
                 }
 
-                const url = new URL('agentAssistEmbed.html', window.location.href);
+                const url = new URL(`${targetHostUrl}${embedHostPath}/agentAssistEmbed.html`);
                 url.search = newParams.toString();
 
                 iframeElement = document.createElement('iframe');
                 iframeElement.src = url.toString();
                 iframeElement.allow = 'clipboard-write';
+
+                iframeElement.onload = () => {
+                    console.log(`${DEBUG_LABEL} Iframe loaded`);
+                    iframeLoaded = true;
+                    if (pendingJwt) {
+                        sendConfig(pendingJwt);
+                        pendingJwt = null;
+                    }
+                };
 
                 document.body.appendChild(iframeElement);
             }
@@ -154,7 +187,14 @@
              * Sends the jwt to the dashboard.
              */
             function sendConfig(jwt) {
-                iframeElement.contentWindow.postMessage({ type: 'wxOAgentAssist:configLoaded', config: { jwt } }, window.location.origin);
+                if (!iframeElement || !iframeElement.contentWindow || !activeEmbedHost) return;
+                iframeElement.contentWindow.postMessage(
+                    {
+                        type: 'wxOAgentAssist:configLoaded',
+                        config: { jwt }
+                    },
+                    new URL(activeEmbedHost).origin
+                );
             }
 
             /**
@@ -262,8 +302,7 @@
                 if (!jwt) {
                     console.error(`${DEBUG_LABEL} Failed to get a JWT!`);
                 } else {
-                    // Send the jwt if the dashboard is waiting or queue it up if it's not ready yet.
-                    if (!isWaiting) {
+                    if (iframeElement && iframeLoaded) {
                         sendConfig(jwt);
                     } else {
                         pendingJwt = jwt;
