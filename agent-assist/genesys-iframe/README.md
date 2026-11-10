@@ -16,4 +16,8 @@ The server must be reachable over HTTPS at a public URL.
 
 ## Configuring `agentAssistEmbed-genesys.html`
 
-Set `EMBED_HOST_URL` at the top of `agentAssistEmbed-genesys.html` to the origin where `agentAssistEmbed.html` is hosted. The correct path is inferred automatically based on the host. Refer to the [Genesys integration docs](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=platform-integration-genesys#configuring-agent-assist-mode) for the correct origin for your deployment.
+Set `EMBED_HOST_URL` at the top of `agentAssistEmbed-genesys.html` to the default origin where `agentAssistEmbed.html` is hosted.
+
+You can also override this value dynamically at runtime by passing a `hostUrl` or `embedHost` query parameter to the loader iframe. The correct dashboard path (`/agentAssist` or `/wxochat`) is automatically resolved based on the host URL.
+
+Refer to the [Genesys integration docs](https://www.ibm.com/docs/en/watsonx/watson-orchestrate/base?topic=platform-integration-genesys#configuring-agent-assist-mode) for more information.
